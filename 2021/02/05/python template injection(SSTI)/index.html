@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="python template injection(SSTI)"><meta name="keywords" content="web,SSTI"><meta name="author" content="Gary"><meta name="copyright" content="Gary"><title>python template injection(SSTI) | Blog</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="python template injection(SSTI)"><meta name="keywords" content="web,SSTI"><meta name="author" content="Phenix"><meta name="copyright" content="Phenix"><title>python template injection(SSTI) | Blog</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
   root: '/',
   algolia: undefined,
   localSearch: undefined,
@@ -8,37 +8,32 @@
     noSupport: '浏览器不支持'
   },
   hexoVersion: '5.3.0'
-} </script><meta name="generator" content="Hexo 5.3.0"></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#tornado%E4%B8%AD%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93%E5%87%BD%E6%95%B0%E6%9C%89%E4%B8%A4%E4%B8%AA%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">tornado中模板渲染函数有两个：</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s3.ax1x.com/2021/02/03/yKqJde.jpg"></div><div class="author-info__name text-center">Gary</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">6</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">6</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">5</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">python template injection(SSTI)</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2021-02-05</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/WEB/">WEB</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h4 id="tornado中模板渲染函数有两个："><a href="#tornado中模板渲染函数有两个：" class="headerlink" title="tornado中模板渲染函数有两个："></a>tornado中模板渲染函数有两个：</h4><p>1.render</p>
-<p>2.render_string</p>
-<p>render是python中的一个渲染函数，也就是一种模板，通过调用的参数不同，生成不同的网页，可以使用不同的参数来访问网页在tornado模板中存在一些可以访问的快速对象。如果用户对render内容可控，不仅可以注入XSS代码，而且还可以通过{{}}进行传递变量和执行简单的表达式。  
+} </script><meta name="generator" content="Hexo 5.3.0"></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#tornado%E4%B8%AD%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93%E5%87%BD%E6%95%B0%E6%9C%89%E4%B8%A4%E4%B8%AA%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">tornado中模板渲染函数有两个：</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s3.ax1x.com/2021/02/03/yKqJde.jpg"></div><div class="author-info__name text-center">Phenix</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">6</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">6</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">5</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">python template injection(SSTI)</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2021-02-05</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/WEB/">WEB</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h4 id="tornado中模板渲染函数有两个："><a href="#tornado中模板渲染函数有两个：" class="headerlink" title="tornado中模板渲染函数有两个："></a>tornado中模板渲染函数有两个：</h4><p>1.render  </p>
+<p>2.render_string<br>render是python中的一个渲染函数，也就是一种模板，通过调用的参数不同，生成不同的网页，可以使用不同的参数来访问网页在tornado模板中存在一些可以访问的快速对象。如果用户对render内容可控，不仅可以注入XSS代码，而且还可以通过{{}}进行传递变量和执行简单的表达式。  
 
-
-
-例如：
+例如：  
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;escape(handler.settings[&quot;cookie&quot;])&#125;&#125;</span><br></pre></td></tr></table></figure>
-就是这个handler.settings对象，handler 指向RequestHandler，而RequestHandler.settings又指向enself.application.settings，所有handler.settings就指向RequestHandler.application.settings了。
+就是这个handler.settings对象，handler 指向RequestHandler，而RequestHandler.settings又指向enself.application.settings，所有handler.settings就指向RequestHandler.application.settings了。  
+
+render_template_string函数在渲染模板的时候使用了%s来动态的替换字符串，在渲染的时候会把{{}}包裹的内容当做变量解析替换。  </p>
+<p>instance.__ class__ 可以获取当前实例的类对象  </p>
+<p>class.__ mro__ 获取当前类对象的所有继承类  </p>
+<p>__ subclasses__()这个方法返回了类的所有存活的子类的引用  </p>
+<p>就是{{}}中的内容被当做了变量解析，那么可以利用这一点，调用python的类，实现想要达到的目的。  
 
 
 
-render_template_string函数在渲染模板的时候使用了%s来动态的替换字符串，在渲染的时候会把{{}}包裹的内容当做变量解析替换。</p>
-<p>instance.__ class__ 可以获取当前实例的类对象</p>
-<p>class.__ mro__ 获取当前类对象的所有继承类</p>
-<p>__ subclasses__()这个方法返回了类的所有存活的子类的引用</p>
-<p>就是{{}}中的内容被当做了变量解析，那么可以利用这一点，调用python的类，实现想要达到的目的。 
+#### Flask中模板渲染函数有两个：  
+
+1.render_template()--用于渲染给定文件  
+
+2.render_template_string()--用于渲染单个字符串  
 
 
 
-#### Flask中模板渲染函数有两个：
-
-1.render_template()--用于渲染给定文件
-
-2.render_template_string()--用于渲染单个字符串
-
-
-
-Flask使用jinja2作为渲染引擎。模板文件并不是纯粹的.html文件，由于需要渲染用户名、个性数据等，模板.html文件需要包含模板语法{{}}在jinja2为变量包裹标识符。</p>
-<p>几种重要的魔术方法：</p>
+Flask使用jinja2作为渲染引擎。模板文件并不是纯粹的.html文件，由于需要渲染用户名、个性数据等，模板.html文件需要包含模板语法{{}}在jinja2为变量包裹标识符。  </p>
+<p>几种重要的魔术方法：  </p>
 <table>
 <thead>
 <tr>
@@ -71,16 +66,16 @@ Flask使用jinja2作为渲染引擎。模板文件并不是纯粹的.html文件�
 <td align="center">对包含函数全局变量的字典的引用</td>
 </tr>
 </tbody></table>
-<p>Flask特有的变量和函数：</p>
-<p>config：就是Flask的config对象，也就是 app.config 对象</p>
-<p>request：Flask中代表当前请求的request对象</p>
-<p>session：Flask的session对象</p>
-<p>url_for()：url_for会根据传入的路由器函数名,返回该路由对应的URL,在模板中始终使用url_for()就可以安全的修改路由绑定的URL,则不比担心模板中渲染出错的链接</p>
-<p>get_flashed_messages()：这个函数会返回之前在flask中通过flask()传入的消息的列表，flash函数的作用很简单,可以把由Python字符串表示的消息加入一个消息队列中，再使用get_flashed_message()函数取出它们并消费掉</p>
+<p>Flask特有的变量和函数：  </p>
+<p>config：就是Flask的config对象，也就是 app.config 对象  </p>
+<p>request：Flask中代表当前请求的request对象  </p>
+<p>session：Flask的session对象  </p>
+<p>url_for()：url_for会根据传入的路由器函数名,返回该路由对应的URL,在模板中始终使用url_for()就可以安全的修改路由绑定的URL,则不比担心模板中渲染出错的链接  </p>
+<p>get_flashed_messages()：这个函数会返回之前在flask中通过flask()传入的消息的列表，flash函数的作用很简单,可以把由Python字符串表示的消息加入一个消息队列中，再使用get_flashed_message()函数取出它们并消费掉  </p>
 <p><a href="https://lemon8888.github.io/2021/02/02/XCTF-WEB/#easytornado">ctf实例1-easytornado</a></p>
 <p><a href="https://lemon8888.github.io/2021/02/02/XCTF-WEB/#Web-python-template-injection">ctf实例2-Web-python-template-injection</a></p>
 <p><a href="https://lemon8888.github.io/2021/02/02/XCTF-WEB/#shrine">ctf实例3-shrine</a></p>
-</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Gary</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://lemon8888.github.io/2021/02/05/python template injection(SSTI)/">http://lemon8888.github.io/2021/02/05/python template injection(SSTI)/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://lemon8888.github.io">Blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/web/">web</a><a class="post-meta__tags" href="/tags/SSTI/">SSTI</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2021/02/06/rsa/"><i class="fa fa-chevron-left">  </i><span>rsa</span></a></div><div class="next-post pull-right"><a href="/2021/02/02/XCTF-CRYPTO/"><span>XCTF-CRYPTO</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2021 By Gary</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://lemon8888.github.io/2021/02/05/python template injection(SSTI)/">http://lemon8888.github.io/2021/02/05/python template injection(SSTI)/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://lemon8888.github.io">Blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/web/">web</a><a class="post-meta__tags" href="/tags/SSTI/">SSTI</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2021/02/06/rsa/"><i class="fa fa-chevron-left">  </i><span>rsa</span></a></div><div class="next-post pull-right"><a href="/2021/02/02/XCTF-CRYPTO/"><span>XCTF-CRYPTO</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2021 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
   $('#nav').addClass('is-mobile')
   $('footer').addClass('is-mobile')
   $('#top-container').addClass('is-mobile')
