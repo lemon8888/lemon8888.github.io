@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="自动化漏洞利用研究与发展"><meta name="keywords" content="automatic exploit generation"><meta name="author" content="Phenix"><meta name="copyright" content="Phenix"><title>自动化漏洞利用研究与发展 | Stay hungry, Stay foolish</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.3.0'
+} </script><meta name="generator" content="Hexo 5.3.0"></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%8A%80%E6%9C%AF"><span class="toc-number">2.</span> <span class="toc-text">关键技术</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95"><span class="toc-number">2.1.</span> <span class="toc-text">模糊测试</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C"><span class="toc-number">2.2.</span> <span class="toc-text">符号执行</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B1%A1%E7%82%B9%E5%88%86%E6%9E%90"><span class="toc-number">2.3.</span> <span class="toc-text">污点分析</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91%E5%8F%8A%E5%B7%B2%E6%9C%89%E6%88%90%E6%9E%9C"><span class="toc-number">3.</span> <span class="toc-text">研究方向及已有成果</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E7%B1%BB%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="toc-number">3.1.</span> <span class="toc-text">数据流与控制流劫持类漏洞利用自动生成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A0%86%E6%A0%88%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E%E7%9A%84%E8%87%AA%E5%8A%A8%E5%88%A9%E7%94%A8%E7%94%9F%E6%88%90"><span class="toc-number">3.2.</span> <span class="toc-text">堆栈溢出漏洞的自动利用生成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Linux%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E%E7%9A%84%E8%87%AA%E5%8A%A8%E5%88%A9%E7%94%A8%E7%94%9F%E6%88%90"><span class="toc-number">3.3.</span> <span class="toc-text">Linux内核漏洞的自动利用生成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#web%E6%B3%A8%E5%85%A5%E7%B1%BB%E6%BC%8F%E6%B4%9E%E8%87%AA%E5%8A%A8%E5%88%A9%E7%94%A8%E7%94%9F%E6%88%90"><span class="toc-number">3.4.</span> <span class="toc-text">web注入类漏洞自动利用生成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%92%88%E5%AF%B9Android%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90"><span class="toc-number">3.5.</span> <span class="toc-text">针对Android系统的漏洞利用自动生成</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6%E8%87%AA%E5%8A%A8%E5%8C%96%E5%AF%B9%E6%8A%97%E6%96%B9%E6%B3%95"><span class="toc-number">3.6.</span> <span class="toc-text">安全机制自动化对抗方法</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-number">4.</span> <span class="toc-text">参考文献</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s3.ax1x.com/2021/02/03/yKqJde.jpg"></div><div class="author-info__name text-center">Phenix</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">13</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">13</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">7</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Stay hungry, Stay foolish</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">自动化漏洞利用研究与发展</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-06-14</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Paper-Notes/">Paper Notes</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>自动化漏洞利用是指，在无安全分析人员干预的基础上，依靠程序自动化挖掘软件中隐藏的漏洞，并自动分析漏洞，生成可以获得计算机控制权限的利用数据或代码，最终利用该漏洞实现软件非预期的功能，一般来说，自动化漏洞利用生成的利用代码目标是获取计算机信息系统的运行权限，比如拿到系统 Shell。自动化漏洞利用的过程主要包括以下两个阶段：</p>
+<ul>
+<li><p>漏洞挖掘。漏洞挖掘阶段是对源代码或可执行的二进制程序进行分析，采用静态分析技术（反汇编技术、控制流图分析技术等）和动态分析技术（模糊测试、符号执行、污点分析技术等）结合的方式发现软件中的漏洞、确定漏洞在程序中的位置。</p>
+</li>
+<li><p>漏洞利用生成。漏洞利用生成则是根据上一阶段获得的漏洞现场信息（内存上下文信息和寄存器信息等），对其加以分析，提取关键寄存器值，构造内存布局，并根据系统内存防护机制采取相应的绕过方法，最终生成能够利用挖掘出的软件漏洞获取目标系统控制权限的代码（exploit）。</p>
+</li>
+</ul>
+<p>首先对被测程序进行预处理，对其存在的漏洞进行挖掘。其次对其漏洞类型进行判断，检测其是否可以执行代码。若该漏洞能够进行代码执行，则根据其利用方式通过符号执行等方法计算是否有满足条件的解 ；若存在满足条件的解，则根据漏洞类型结合其求解出的条件生成漏洞利用。</p>
+<h4 id="关键技术"><a href="#关键技术" class="headerlink" title="关键技术"></a>关键技术</h4><h5 id="模糊测试"><a href="#模糊测试" class="headerlink" title="模糊测试"></a>模糊测试</h5><p>模糊测试是一种较为高效的软件分析技术。其核心思想是为程序提供大量测试样例，在程序执行过程中监控程序异常行为，以发现程序漏洞。测试用例的生成是模糊测试的关键环节之一，通常来讲可以有两种方式，基于生成和基于变异。基于生成的模糊测试适用于待测输入格式较为明确，或格式要求较为严格的情况，如文件处理系统或用协议进行通讯的程序，测试器根据输入格式生成测试用例,以提高有效输入的比例。基于变异的模糊测试工具则在原始输入的基础上根据程序反馈对种子进行变异，变异方法包括比特翻转、增减、拷贝等。<br>模糊测试可以被分为黑盒、灰盒、白盒三种模式。其中，黑盒模糊测试不对程序内部结构进行分析，而是通过生成随机输入触发程序的缺陷。白盒模糊测试则利用符号执行等程序分析技术对程序结构进行分析，以提高覆盖率和漏洞挖掘能力。灰盒模糊测试不对程序进行分析但会根据程序反馈调整输入。 </p>
+<h5 id="符号执行"><a href="#符号执行" class="headerlink" title="符号执行"></a>符号执行</h5><p>符号执行是指采用抽象符号代替程序变量，依据程序语义遍历整个执行空间，程序的输出被表示为输入符号值的函数。<br>符号执行可分为静态符号执行、动态符号执行与选择性符号执行。静态符号执行并不真正的执行程序，而是通过符号值模拟程序执行；动态符号执行是对具体执行与静态符号执行的整合，兼具了两种方法的优点；选择性符号执行可以对关键部分进行符号执行，其余部分采用真实执行。虽然符号执行技术具有较高的代码覆盖率，但面临着程序状态空间爆炸、复杂约束无法求解、资源消耗过大等问题。</p>
+<h5 id="污点分析"><a href="#污点分析" class="headerlink" title="污点分析"></a>污点分析</h5><p>污点分析的核心思想是跟踪并分析污点数据在程序中的传播情况。污点分析可分为静态污点分析与动态污点分析。静态污点分析通过对源码或字节码中的语句进行分析，刻画语句或指令间的依赖关系并以此为依据，判断污点数据可能的全部传播路径。动态污点分析是在程序执行过程中，结合程序插桩跟踪污点数据的传播过程，相较于静态污点分析能够提供更精确的分析结果。虽然污点分析能够提供精确的分析结果，但其同样面临着隐式流问题、污点清除、性能开销过大等问题。</p>
+<h4 id="研究方向及已有成果"><a href="#研究方向及已有成果" class="headerlink" title="研究方向及已有成果"></a>研究方向及已有成果</h4><h5 id="数据流与控制流劫持类漏洞利用自动生成"><a href="#数据流与控制流劫持类漏洞利用自动生成" class="headerlink" title="数据流与控制流劫持类漏洞利用自动生成"></a>数据流与控制流劫持类漏洞利用自动生成</h5><p>内存溢出类漏洞又称为内存越界漏洞，可能由堆、栈和格式化的字符串造成。漏洞利用的主要目的是在程序中执行满足攻击者意图的代码，如下载恶意代码、执行 shell、添加账户等功能，也就是通常所说的任意代码执行漏洞．而控制流劫持漏洞就是一种典型的任意代码执行漏洞，这种漏洞大多属于高危漏洞，针对这种漏洞自动化地生成利用代码已有多年的研究。</p>
+<table>
+<thead>
+<tr>
+<th align="center">研究成果</th>
+<th align="center">针对问题</th>
+<th align="center">主要贡献</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">APEG</td>
+<td align="center">针对如何自动搜索已发布补丁的程序中存在的漏洞问题</td>
+<td align="center">提出一种基于补丁的自动漏洞利用生成程</td>
+</tr>
+<tr>
+<td align="center">AEG</td>
+<td align="center">针对如何自动发现漏洞并对漏洞生成相关利用问</td>
+<td align="center">提出一种全自动的端到端的自动生成利用方法，开发了一种新的预处理符号执行技术和路径优先级算法</td>
+</tr>
+<tr>
+<td align="center">CRAX</td>
+<td align="center">针对 AEG产生的 exp可能会由于漏洞点和触发exp点的传播距离过远而失效问题</td>
+<td align="center">提出一种构建在新的符号执行平台上的自动化漏洞利用生成框架</td>
+</tr>
+<tr>
+<td align="center">Mayhem</td>
+<td align="center">针对自动查找二进制程序中可利用漏洞问</td>
+<td align="center">提出一种以高效且可扩展的方式自动查找二进制程序中可利用漏洞的工具，引入了一种新的混合符号执行方案，将现有符号执行技术（在线和离线）的优点结合到一个系统中，还介绍了基于索引的内存建模方法</td>
+</tr>
+<tr>
+<td align="center">AXGEN</td>
+<td align="center">针对利用缓冲区溢出漏洞生成自动利用问题</td>
+<td align="center">提出第一种使用源自软件验证和程序分析的方法进行漏洞利用生成的工具</td>
+</tr>
+<tr>
+<td align="center">PolyAEG</td>
+<td align="center">针对二进制程序中控制流劫持类漏洞的自动利用生成问题</td>
+<td align="center">提出一种通过多样化跳转指令和shellcode的组合来产生漏洞的方法</td>
+</tr>
+<tr>
+<td align="center">FlowStitch</td>
+<td align="center">针对如何面向数据流生成自动利用问题</td>
+<td align="center">将数据流拼接概念化，提出一种通过一个内存错误将良性数据流组合到一个应用程序中从而系统化地构建面向数据的攻击方法</td>
+</tr>
+<tr>
+<td align="center">GuidExp</td>
+<td align="center">针对语言虚拟机中漏洞的自动利用生成问题</td>
+<td align="center">构建一个引导（半自动）开发生成工具，其目标是语言虚拟机实现中的漏洞</td>
+</tr>
+</tbody></table>
+<h5 id="堆栈溢出漏洞的自动利用生成"><a href="#堆栈溢出漏洞的自动利用生成" class="headerlink" title="堆栈溢出漏洞的自动利用生成"></a>堆栈溢出漏洞的自动利用生成</h5><table>
+<thead>
+<tr>
+<th align="center">研究成果</th>
+<th align="center">针对问题</th>
+<th align="center">主要贡献</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Automated Exploit Generation for Stack Buffer Overfow Vulnerabilities</td>
+<td align="center">针对堆栈缓冲区溢出漏洞自动生成利用问题</td>
+<td align="center">提出一种基于二进制代码符号执行来评估检测到的错误的方</td>
+</tr>
+<tr>
+<td align="center">Modular Synthesis of Heap Exploits</td>
+<td align="center">针对堆漏洞的自动利用生成问题</td>
+<td align="center">提出一种基于符号执行的模块化方法</td>
+</tr>
+<tr>
+<td align="center">Revery</td>
+<td align="center">针对基于堆的漏洞自动利用生成问题</td>
+<td align="center">提出一种布局 -贡献者有向图数据结构，以表征漏洞的内存布局及其贡献者指令，从而实现许多与漏洞利用相关的分析</td>
+</tr>
+<tr>
+<td align="center">SHRIKE</td>
+<td align="center">针对分析堆布局操作存在的漏洞自动利用生成问题</td>
+<td align="center">设计一个可以在 PHP解释器上执行自动堆布局操作的系统，可用于构建控制流劫持漏洞，同时提出一种用于堆布局操作的伪随机黑框搜索算法</td>
+</tr>
+<tr>
+<td align="center">HeapHopper</td>
+<td align="center">针对堆元数据处理时存在的漏洞进行自动利用生成问题</td>
+<td align="center">提出一种基于模型检查和符号执行的自动方法堆处理器，来分析在存在内存漏洞时堆实现的可利用性</td>
+</tr>
+<tr>
+<td align="center">Pangr</td>
+<td align="center">针对二进制文件中存在的堆栈溢出漏洞</td>
+<td align="center">提出基于行为的漏洞检测建模，可以有效地对漏洞进行检测和分类</td>
+</tr>
+<tr>
+<td align="center">Gollum</td>
+<td align="center">针对解释器中的堆溢出漏洞自动生成利用问题</td>
+<td align="center">提出一种纯灰盒方法来利用生成，引入了惰性解决的概念，描述了一种遗传算法来解决堆布局问题</td>
+</tr>
+<tr>
+<td align="center">ARCHEAP</td>
+<td align="center">针对堆分配器元数据的利用技术自动生成利用问题</td>
+<td align="center">总结堆分配器共享的通用设计，并定义了利用的影响，可用于有效评估利用技术</td>
+</tr>
+<tr>
+<td align="center">HAEPG</td>
+<td align="center">针对堆漏洞的自动利用生成问题</td>
+<td align="center">使用混合技术来构建堆交互模型并试图通过多跳方式实现漏洞利用的生成</td>
+</tr>
+<tr>
+<td align="center">MAZE</td>
+<td align="center">针对堆布局的漏洞自动利用生成问题</td>
+<td align="center">提出一种新的自动化堆布局操作解决方案，能够为广泛的堆分配器生成复杂的堆布局，从而促进自动化开发生成</td>
+</tr>
+<tr>
+<td align="center">AngErza</td>
+<td align="center">针对缓冲区溢出类漏洞的自动利用生成问题</td>
+<td align="center">提出一种基于 angr的方法，使用动态符号执行来识别代码中的漏洞点，制定约束条件并基于这些约束生成有效利用</td>
+</tr>
+</tbody></table>
+<h5 id="Linux内核漏洞的自动利用生成"><a href="#Linux内核漏洞的自动利用生成" class="headerlink" title="Linux内核漏洞的自动利用生成"></a>Linux内核漏洞的自动利用生成</h5><table>
+<thead>
+<tr>
+<th align="center">研究成果</th>
+<th align="center">针对问题</th>
+<th align="center">主要贡献</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">FUZE</td>
+<td align="center">针对内核释放后使用（UAF）漏洞自动利用生成问题</td>
+<td align="center">设计一种在 Linux系统中利用内核融合和符号执行来促进内核UAF利用生成的框架</td>
+</tr>
+<tr>
+<td align="center">KEPLER</td>
+<td align="center">针对 Linux内核使用控制流劫持原语创建漏洞问题</td>
+<td align="center">提出一种新的代码重用利用技术，将单一不适合的控制流劫持原语转换为任意 ROP有效负载执行</td>
+</tr>
+<tr>
+<td align="center">SLAKE</td>
+<td align="center">针对 Linux内核的复杂性以及 slab内存分配算法的不确定性问题</td>
+<td align="center">对常用的内核开发方法进行建模，设计一种利用静态 /动态分析来识别对内核开发有用的内核对象和系统调用的方法</td>
+</tr>
+<tr>
+<td align="center">KOOBE</td>
+<td align="center">针对 Linux内核 OOB漏洞自动生成利用问题</td>
+<td align="center">归纳利用 Linux内核 OOB漏洞的关键挑战，并设计一个有效的分析框架，提取该类型漏洞的内在特征</td>
+</tr>
+</tbody></table>
+<h5 id="web注入类漏洞自动利用生成"><a href="#web注入类漏洞自动利用生成" class="headerlink" title="web注入类漏洞自动利用生成"></a>web注入类漏洞自动利用生成</h5><table>
+<thead>
+<tr>
+<th align="center">研究成果</th>
+<th align="center">针对问题</th>
+<th align="center">主要贡献</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">QED</td>
+<td align="center">针对 XSS和 SQL注入的自动利用生成问题</td>
+<td align="center">提出一种目标导向的模型检查系统，可利用大型 Java Web 应用程序中的基于污点的漏洞能力自动生成攻击</td>
+</tr>
+<tr>
+<td align="center">ARDILLA</td>
+<td align="center">针对 Web应用程序中的安全漏洞自动利用生成问题</td>
+<td align="center">提出一种用于创建 SQLI和 XSS攻击向量的全自动技术，同时提出一种象征性地跟踪数据库中受污染数据流的新方法</td>
+</tr>
+<tr>
+<td align="center">WAPTEC</td>
+<td align="center">针对参数篡改漏洞的自动利用生成问题</td>
+<td align="center">提出一种将形式逻辑和约束求解、符号评估和动态分析相结合的方法</td>
+</tr>
+<tr>
+<td align="center">CRAXWeb</td>
+<td align="center">针对 Web应用程序中的自动利用生成问题</td>
+<td align="center">提出一种基于 S2E测试方法的动态符号执行，同时提出了单路径并行模式及一些优化</td>
+</tr>
+<tr>
+<td align="center">CHAINSAW</td>
+<td align="center">针对 Web注入漏洞的识别和自动利用生成的改进问题</td>
+<td align="center">提出一种应用程序工作流、数据库模式和本地函数的精确模型，实现了高质量的利用自动生成</td>
+</tr>
+<tr>
+<td align="center">SUT</td>
+<td align="center">针对 SOAP通信的 XML注入自动利用生成问题</td>
+<td align="center">比较 4种不同的搜索算法，即标准遗传算法（SGA）、实编码遗传算法（RGA）、爬山算法（HC）和随机搜索算法（RS）并提出一种元启发式搜索算法</td>
+</tr>
+<tr>
+<td align="center">PrimGen</td>
+<td align="center">针对网络浏览器的漏洞自动利用生成问题</td>
+<td align="center">提出一种方法来自动执行使浏览器崩溃的输入，以执行不同的利用原语</td>
+</tr>
+<tr>
+<td align="center">NAVEX</td>
+<td align="center">针对 Web应用程序的动态特性的利用自动生成问题</td>
+<td align="center">提出一种结合了由静态分析技术指导的动态分析方法，以自动识别漏洞并构建利用</td>
+</tr>
+</tbody></table>
+<h5 id="针对Android系统的漏洞利用自动生成"><a href="#针对Android系统的漏洞利用自动生成" class="headerlink" title="针对Android系统的漏洞利用自动生成"></a>针对Android系统的漏洞利用自动生成</h5><table>
+<thead>
+<tr>
+<th align="center">研究成果</th>
+<th align="center">针对问题</th>
+<th align="center">主要贡献</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">LetterBomb</td>
+<td align="center">针对 Android应用程序中漏洞的自动利用生成问题</td>
+<td align="center">提出一种自动生成 Android应用程序漏洞利用的方法，采用依赖于组合的基于路径敏感的符号执行的静态分析，以及软件检测技术和测试预言机</td>
+</tr>
+<tr>
+<td align="center">CENTAUR</td>
+<td align="center">针对 Android应用程序漏洞的分析与自动利用生成问题</td>
+<td align="center">提出一种基于 Android系统构建符号执行器的创新架构，设计一个强大的算法，将执行上下文信息从Android迁移到符号执行器</td>
+</tr>
+<tr>
+<td align="center">EOEDroid</td>
+<td align="center">针对 Android系统中集成的嵌入浏览器中存在的漏洞的自动利用生成问题</td>
+<td align="center">提出一种新的方法，可以使用选择性符号执行和静态分析来自动检查给定的混合应用程序中的事件处理程序</td>
+</tr>
+<tr>
+<td align="center">Mingsong Zhou等</td>
+<td align="center">针对 Android程序的功能泄露的自动利用生成问题</td>
+<td align="center">提出一种基于路径敏感符号执行的工具，它可以自动生成功能泄露的静态分析和测试</td>
+</tr>
+</tbody></table>
+<h5 id="安全机制自动化对抗方法"><a href="#安全机制自动化对抗方法" class="headerlink" title="安全机制自动化对抗方法"></a>安全机制自动化对抗方法</h5><table>
+<thead>
+<tr>
+<th align="center">研究成果</th>
+<th align="center">针对问题</th>
+<th align="center">主要贡献</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Q</td>
+<td align="center">针对数据执行保护和地址随机化导致的漏洞利用困难问题</td>
+<td align="center">针对控制流劫持类漏洞，提出了一种通过从少量非随机代码中自动创建ROP有效负载的新技术</td>
+</tr>
+<tr>
+<td align="center">DOP</td>
+<td align="center">针对内存中非控制数据流的自动利用生成问题</td>
+<td align="center">提出了一种面向数据的编程（DOP）方法，这是一种针对脆弱程序构建图灵完全非控制数据攻击的通用方法</td>
+</tr>
+<tr>
+<td align="center">BOPC</td>
+<td align="center">针对高级 CFI和影子堆栈等控制流劫持防御的自动利用生成问题</td>
+<td align="center">提出了 SPL，一种可以访问虚拟寄存器的语言，以及一个用于调用操作系统和其他库函数的 API，适用于编写漏洞利用负载，开发了一个跟踪模块，允许使用目标二进制文件的代码执行以 SPL编写的任意有效负载</td>
+</tr>
+<tr>
+<td align="center">R2dlAEG</td>
+<td align="center">针对 Return-to-dl-resolve方法需要手工生成漏洞利用问题</td>
+<td align="center">提出了一种基于符号执行的 Return-to-dl-resolve自动化实现方法</td>
+</tr>
+</tbody></table>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><blockquote>
+<p>[1]冯光升,张熠哲,孙嘉钰,吕宏武.计算机系统漏洞自动化利用研究关键技术及进展[J].信息网络安全,2022,22(03):39-52.</p>
+<p>[2]刘凯.浅谈自动化漏洞利用的发展[J].信息系统工程,2020(06):54-55.</p>
+<p>[3]苏璞睿,黄桦烽,余媛萍,张涛.软件漏洞自动利用研究综述[J].广州大学学报(自然科学版),2019,18(03):52-58.</p>
+<p>[4]靳宪龙,黄雅娟.自动化漏洞利用研究进展[J].现代计算机,2019(31):15-20.</p>
+<p>[5]倪远东,张超,殷婷婷.智能合约安全漏洞研究综述[J].信息安全学报,2020,5(03):78-99.DOI:10.19363/J.cnki.cn10-1380/tn.2020.05.07.</p>
+</blockquote>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lemon8888.github.io/2022/06/14/自动化漏洞利用研究与发展/">https://lemon8888.github.io/2022/06/14/自动化漏洞利用研究与发展/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lemon8888.github.io">Stay hungry, Stay foolish</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/automatic-exploit-generation/">automatic exploit generation</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2022/06/05/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E7%A0%94%E7%A9%B6%E7%BB%BC%E8%BF%B0/"><span>符号执行研究综述</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>
