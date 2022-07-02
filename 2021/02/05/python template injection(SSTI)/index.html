@@ -13,7 +13,8 @@
 
 例如：  
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;escape(handler.settings[&quot;cookie&quot;])&#125;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;escape(handler.settings[&quot;cookie&quot;])&#125;&#125;</span><br></pre></td></tr></table></figure>
+
 就是这个handler.settings对象，handler 指向RequestHandler，而RequestHandler.settings又指向enself.application.settings，所有handler.settings就指向RequestHandler.application.settings了。  
 
 render_template_string函数在渲染模板的时候使用了%s来动态的替换字符串，在渲染的时候会把{{}}包裹的内容当做变量解析替换。  </p>
