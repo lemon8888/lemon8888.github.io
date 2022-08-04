@@ -35,38 +35,42 @@ render_template_string函数在渲染模板的时候使用了%s来动态的替�
 
 Flask使用jinja2作为渲染引擎。模板文件并不是纯粹的.html文件，由于需要渲染用户名、个性数据等，模板.html文件需要包含模板语法{{}}在jinja2为变量包裹标识符。  </p>
 <p>几种重要的魔术方法：  </p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">方法名</th>
-<th align="center">功能</th>
+<th style="text-align:center">方法名</th>
+<th style="text-align:center">功能</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">__class__</td>
-<td align="center">返回类型所属的对象</td>
+<tbody>
+<tr>
+<td style="text-align:center">__class__</td>
+<td style="text-align:center">返回类型所属的对象</td>
 </tr>
 <tr>
-<td align="center">__mro__</td>
-<td align="center">返回包含对象所继承的基类元组，方法在解析时按照元组顺序解析</td>
+<td style="text-align:center">__mro__</td>
+<td style="text-align:center">返回包含对象所继承的基类元组，方法在解析时按照元组顺序解析</td>
 </tr>
 <tr>
-<td align="center">__base__</td>
-<td align="center">返回对象所继承的基类</td>
+<td style="text-align:center">__base__</td>
+<td style="text-align:center">返回对象所继承的基类</td>
 </tr>
 <tr>
-<td align="center">__subclasses__</td>
-<td align="center">每个新类都保留子类的引用，该方法返回类中仍然可用的子类列表</td>
+<td style="text-align:center">__subclasses__</td>
+<td style="text-align:center">每个新类都保留子类的引用，该方法返回类中仍然可用的子类列表</td>
 </tr>
 <tr>
-<td align="center">__init__</td>
-<td align="center">类的初始化</td>
+<td style="text-align:center">__init__</td>
+<td style="text-align:center">类的初始化</td>
 </tr>
 <tr>
-<td align="center">__globals__</td>
-<td align="center">对包含函数全局变量的字典的引用</td>
+<td style="text-align:center">__globals__</td>
+<td style="text-align:center">对包含函数全局变量的字典的引用</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>Flask特有的变量和函数：  </p>
 <p>config：就是Flask的config对象，也就是 app.config 对象  </p>
 <p>request：Flask中代表当前请求的request对象  </p>
@@ -76,7 +80,29 @@ Flask使用jinja2作为渲染引擎。模板文件并不是纯粹的.html文件�
 <p><a href="https://lemon8888.github.io/2021/02/02/XCTF-WEB/#easytornado">ctf实例1-easytornado</a></p>
 <p><a href="https://lemon8888.github.io/2021/02/02/XCTF-WEB/#Web-python-template-injection">ctf实例2-Web-python-template-injection</a></p>
 <p><a href="https://lemon8888.github.io/2021/02/02/XCTF-WEB/#shrine">ctf实例3-shrine</a></p>
-</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lemon8888.github.io/2021/02/05/python template injection(SSTI)/">https://lemon8888.github.io/2021/02/05/python template injection(SSTI)/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lemon8888.github.io">Stay hungry, Stay foolish</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/web/">web</a><a class="post-meta__tags" href="/tags/SSTI/">SSTI</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2021/07/01/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><i class="fa fa-chevron-left">  </i><span>阅读笔记</span></a></div><div class="next-post pull-right"><a href="/2021/02/02/XCTF-CRYPTO/"><span>XCTF-CRYPTO</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lemon8888.github.io/2021/02/05/python template injection(SSTI)/">https://lemon8888.github.io/2021/02/05/python template injection(SSTI)/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lemon8888.github.io">Stay hungry, Stay foolish</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/web/">web</a><a class="post-meta__tags" href="/tags/SSTI/">SSTI</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2021/07/01/%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><i class="fa fa-chevron-left">  </i><span>阅读笔记</span></a></div><div class="next-post pull-right"><a href="/2021/02/02/XCTF-CRYPTO/"><span>XCTF-CRYPTO</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
   $('#nav').addClass('is-mobile')
   $('footer').addClass('is-mobile')
   $('#top-container').addClass('is-mobile')
