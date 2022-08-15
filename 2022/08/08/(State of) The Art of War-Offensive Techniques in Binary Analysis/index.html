@@ -1,0 +1,249 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="(State of) The Art of War：Offensive Techniques in Binary Analysis"><meta name="keywords" content="binary analysis"><meta name="author" content="Phenix"><meta name="copyright" content="Phenix"><title>(State of) The Art of War：Offensive Techniques in Binary Analysis | Stay hungry, Stay foolish</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.2'
+} </script><meta name="generator" content="Hexo 5.4.2"></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">自动化二进制分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E6%BC%8F%E6%B4%9E%E5%8F%91%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">静态漏洞发现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E6%BC%8F%E6%B4%9E%E5%8F%91%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">动态漏洞发现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E5%85%B7%E4%BD%93%E6%89%A7%E8%A1%8C"><span class="toc-number">3.1.</span> <span class="toc-text">动态具体执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95"><span class="toc-number">3.2.</span> <span class="toc-text">模糊测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C"><span class="toc-number">3.3.</span> <span class="toc-text">动态符号执行</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">漏洞利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#angr%E5%88%86%E6%9E%90%E5%BC%95%E6%93%8E"><span class="toc-number">5.</span> <span class="toc-text">angr分析引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="toc-number">5.1.</span> <span class="toc-text">设计目标</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E6%A8%A1%E5%9D%97%EF%BC%9A%E4%B8%AD%E9%97%B4%E8%A1%A8%E7%A4%BA"><span class="toc-number">5.2.</span> <span class="toc-text">子模块：中间表示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E6%A8%A1%E5%9D%97%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%8A%A0%E8%BD%BD"><span class="toc-number">5.3.</span> <span class="toc-text">子模块：二进制加载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E6%A8%A1%E5%9D%97%EF%BC%9A%E7%A8%8B%E5%BA%8F%E7%8A%B6%E6%80%81%E8%A1%A8%E7%A4%BA-%E4%BF%AE%E6%94%B9"><span class="toc-number">5.4.</span> <span class="toc-text">子模块：程序状态表示&#x2F;修改</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E6%A8%A1%E5%9D%97%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B"><span class="toc-number">5.5.</span> <span class="toc-text">子模块：数据模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E6%A8%A1%E5%9D%97%EF%BC%9A%E5%85%A8%E7%A8%8B%E5%BA%8F%E5%88%86%E6%9E%90"><span class="toc-number">5.6.</span> <span class="toc-text">子模块：全程序分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%80%E6%BA%90%E7%89%88%E6%9C%AC"><span class="toc-number">5.7.</span> <span class="toc-text">开源版本</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9ACFG%E6%81%A2%E5%A4%8D"><span class="toc-number">6.</span> <span class="toc-text">实现：CFG恢复</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E6%83%B3"><span class="toc-number">6.1.</span> <span class="toc-text">设想</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%AD%E4%BB%A3CFG%E7%94%9F%E6%88%90"><span class="toc-number">6.2.</span> <span class="toc-text">迭代CFG生成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CFGFast"><span class="toc-number">6.3.</span> <span class="toc-text">CFGFast</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CFG%E6%81%A2%E5%A4%8D%E6%96%B9%E6%B3%95"><span class="toc-number">6.4.</span> <span class="toc-text">CFG恢复方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9A%E5%80%BC%E9%9B%86%E5%88%86%E6%9E%90"><span class="toc-number">7.</span> <span class="toc-text">实现：值集分析</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8VSA"><span class="toc-number">7.0.1.</span> <span class="toc-text">使用VSA</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9A%E5%8A%A8%E6%80%81%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C"><span class="toc-number">8.</span> <span class="toc-text">实现：动态符号执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9A%E4%B8%8D%E5%8F%97%E7%BA%A6%E6%9D%9F%E7%9A%84%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C"><span class="toc-number">9.</span> <span class="toc-text">实现：不受约束的符号执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9A%E7%AC%A6%E5%8F%B7%E5%BC%95%E5%AF%BC%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95"><span class="toc-number">10.</span> <span class="toc-text">实现：符号引导模糊测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9A%E5%B4%A9%E6%BA%83%E9%87%8D%E7%8E%B0"><span class="toc-number">11.</span> <span class="toc-text">实现：崩溃重现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9A%E5%88%A9%E7%94%A8%E7%94%9F%E6%88%90"><span class="toc-number">12.</span> <span class="toc-text">实现：利用生成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%EF%BC%9A%E5%88%A9%E7%94%A8%E5%BC%BA%E5%8C%96"><span class="toc-number">13.</span> <span class="toc-text">实现：利用强化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94%E8%AF%84%E4%BC%B0"><span class="toc-number">14.</span> <span class="toc-text">对比评估</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">15.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s3.ax1x.com/2021/02/03/yKqJde.jpg"></div><div class="author-info__name text-center">Phenix</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">20</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">15</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Stay hungry, Stay foolish</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">(State of) The Art of War：Offensive Techniques in Binary Analysis</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-08-08</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/PaperNotes/">PaperNotes</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><blockquote>
+<p><a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&amp;arnumber=7546500">Y. Shoshitaishvili <em>et al</em>., “SOK: (State of) The Art of War: Offensive Techniques in Binary Analysis,” <em>2016 IEEE Symposium on Security and Privacy (SP)</em>, 2016, pp. 138-157, doi: 10.1109/SP.2016.17.</a></p>
+</blockquote>
+<h3 id="自动化二进制分析"><a href="#自动化二进制分析" class="headerlink" title="自动化二进制分析"></a>自动化二进制分析</h3><p>为了提供输入或语义洞察力的重放性，分析技术必须做出一定的权衡。</p>
+<ul>
+<li>可重放性：根据系统做出的权衡，通过给定的分析发现的漏洞可能没有重放价值。</li>
+<li>语义洞察：有些分析缺乏以语义上有意义的方式对程序进行推理的能力。</li>
+</ul>
+<p>除了这些根本性的挑战外，还有实施方面的挑战。其中最大的一个就是环境模型。任何具有高度语义理解的分析都必须对应用程序与其环境的交互进行建模。</p>
+<h3 id="静态漏洞发现"><a href="#静态漏洞发现" class="headerlink" title="静态漏洞发现"></a>静态漏洞发现</h3><p>静态技术在不执行程序的情况下对程序进行推理。静态分析分为两种模式:将程序属性建模为图(即控制流图)和将数据本身建模。静态漏洞识别技术有两个主要缺点，首先，结果是不可重放的:静态分析的检测必须手工验证，因为关于如何触发检测到的漏洞的信息无法恢复。其次，这些分析倾向于在更简单的数据域上进行操作，降低了它们的语义洞察力。</p>
+<ul>
+<li><p>控制流图</p>
+<p>CFG图中的节点是指令的基本块，边缘是它们之间可能的控制流传输。CFG恢复是通过递归算法实现的，它分解并分析一个基本块，识别其可能的出口并将它们添加到CFG。CFG恢复有一个基本的挑战:间接跳跃。当二进制将控制流传输到由寄存器或内存位置中的值表示的目标时，就会发生间接跳转。在直接跳转中，目标被编码到指令本身中，因此是可轻松解析的，而间接跳转的目标可以根据许多因素而变化。具体来说，间接跳跃可分为以下几类:</p>
+<ul>
+<li><p>计算</p>
+<p>计算跳转的目标由应用程序通过执行代码指定的计算来确定。这个计算可能进一步依赖于其他寄存器或内存中的值。</p>
+</li>
+<li><p>上下文敏感</p>
+<p>间接跳转可能依赖于应用程序的上下文。常见的例子是标准C库中的qsort()</p>
+</li>
+<li><p>对象敏感</p>
+<p>对象敏感性是上下文敏感性的一个特例。在面向对象的语言中，对象多态性需要使用虚函数，通常实现为函数指针的虚表，在运行时查阅这些表来确定跳转目标。因此，跳转目标取决于调用者传递给函数的对象类型。</p>
+</li>
+</ul>
+<p>CFG恢复的目标是解决尽可能多的这些间接跳转的目标，以创建一个CFG。给定的间接跳转可能会解析为一组值(即跳转表中的所有地址，如果在某些条件下可以触发它们的使用)，并且这个集合可能会根据对象和上下文敏感性而改变。CFG恢复分析有两个特点：</p>
+<ul>
+<li>稳健：如果所有潜在控制流传输的集合表示在生成的图，CFG恢复技术是可靠的。</li>
+<li>完整：一个完整的CFG恢复建立一个CFG，其中所有的边代表实际可能的控制流传输。</li>
+</ul>
+</li>
+<li><p>基于流建模的漏洞检测</p>
+<p>通过分析程序属性图可以发现程序中的一些漏洞。基于漏洞的发现，程序属性图(例如，控制流图、数据流图和控制依赖图)可以用来识别软件中的漏洞。最初应用于源代码，相关技术后来被扩展到二进制。</p>
+</li>
+<li><p>基于数据建模的漏洞检测</p>
+<p>通过分析内存读写的近似访问模式，可以在二进制文件中确定变量和缓冲区的位置。完成此操作后，可以分析恢复的变量和缓冲区位置，以找到重叠的缓冲区。</p>
+</li>
+</ul>
+<h3 id="动态漏洞发现"><a href="#动态漏洞发现" class="headerlink" title="动态漏洞发现"></a>动态漏洞发现</h3><p>动态方法是在给定特定输入的情况下，在实际或模拟环境中检查程序执行情况的分析。</p>
+<h4 id="动态具体执行"><a href="#动态具体执行" class="headerlink" title="动态具体执行"></a>动态具体执行</h4><p>动态具体执行是指在最少仪器化的环境中执行程序。程序正常工作，处理与它正常工作相同的数据域(即1和0)。这些分析通常在单个路径的层次上进行推理。因此，动态的具体执行需要用户提供测试用例。</p>
+<h4 id="模糊测试"><a href="#模糊测试" class="headerlink" title="模糊测试"></a>模糊测试</h4><p>动态具体执行与漏洞发现最相关的应用是模糊化。Fuzzing是一种动态技术，在这种技术中，向应用程序提供格式不正确的输入，试图触发崩溃。</p>
+<ul>
+<li>基于覆盖率的fuzzing：随着基于代码覆盖的模糊化的出现，对精心设计的测试用例的需求得到了部分缓解。基于代码覆盖的模糊测试试图产生最大限度地在目标应用程序中执行的代码量的输入，因为执行的代码越多，执行易受攻击的代码的可能性就越大。</li>
+<li>基于污点的fuzzing：这种模糊测试分析应用程序如何处理输入，以了解在未来运行中需要修改输入的哪些部分。其中一些结合了污点分析与静态技术。</li>
+</ul>
+<h4 id="动态符号执行"><a href="#动态符号执行" class="headerlink" title="动态符号执行"></a>动态符号执行</h4><p>动态符号执行是符号执行的一个子集，它是一种在模拟环境中执行程序的动态技术。但是，这种执行发生在符号变量的抽象域中。当这些系统模拟应用程序时，它们在程序执行过程中跟踪寄存器和内存的状态以及这些变量的约束。每当到达有条件的分支时，执行就会分叉并遵循两条路径，将分支条件保存为获取分支的路径上的约束，将分支条件的逆保存为未获取分支的路径上的约束。</p>
+<ul>
+<li><p>经典动态符号执行</p>
+<p>动态符号执行可以直接用于发现软件漏洞。最初应用于测试源代码动态符号执行被Mayhem和S2E扩展到二进制代码。然而由于路径爆炸的问题，所有目前提出的符号执行技术的可伸缩性都非常有限。</p>
+</li>
+<li><p>符号辅助模糊测试</p>
+<p>这种符号引导模糊测试通过在动态符号执行引擎中处理模糊测试组件识别的输入来修改它们。动态符号执行使用对分析程序的更深入的理解来适当地改变输入，提供额外的测试用例来触发以前未探索的代码，并允许模糊测试组件继续前进。</p>
+</li>
+<li><p>欠约束符号执行</p>
+<p>它可以有效地识别潜在的bug，但有两个缺点。首先，不可能为应用程序的各个部分的执行确保适当的上下文，这会导致结果中出现许多误报。其次，与静态漏洞发现技术类似，不受约束的符号执行放弃了它检测到的漏洞的重放性，以换取可伸缩性。</p>
+</li>
+</ul>
+<h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>漏洞发现分析实际上发现了崩溃的输入。</p>
+<ul>
+<li><p>崩溃重现</p>
+<p>大多数漏洞发现分析都是在不太现实的条件下执行测试应用程序。无法重放的崩溃输入通常分为两类：</p>
+<ul>
+<li>数据缺失</li>
+<li>关系缺失</li>
+</ul>
+</li>
+<li><p>利用生成</p>
+<p>了解崩溃是否可被利用有助于对错误进行分类(也就是说，了解应该首先调查和修复哪些错误)。测试崩溃是否可以利用的明显方法是尝试利用它。</p>
+</li>
+<li><p>利用强化</p>
+<p>二进制强化技术，如非可执行堆栈区域和地址空间布局随机化(ASLR)，严重降低了传统漏洞的有效性。当前的自动利用技术是在现代缓解技术广泛采用之前设计的，现代软件保护使它们产生的利用失效。为了避免这种情况，已经创建了一些方法来自动加固使用当前技术生成的漏洞，以对抗这种防御。这种技术的工作原理是将传统的基于 shellcode 的漏洞利用转换为利用面向返回的编程的等效漏洞来工作。 因此，需要一种自动构建返回导向程序的方法。</p>
+</li>
+</ul>
+<h3 id="angr分析引擎"><a href="#angr分析引擎" class="headerlink" title="angr分析引擎"></a>angr分析引擎</h3><h4 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h4><ul>
+<li>支持跨架构</li>
+<li>支持跨平台</li>
+<li>支持不同分析范例</li>
+<li>可用性</li>
+</ul>
+<h4 id="子模块：中间表示"><a href="#子模块：中间表示" class="headerlink" title="子模块：中间表示"></a>子模块：中间表示</h4><p>将特定于体系结构的本地二进制代码转换为中间表示(IR)，并在其上实现分析。利用了libVEX-V algrind项目的IR提升器。libVEX生成一个称为VEX的IR，它是专门为程序分析设计的。</p>
+<h4 id="子模块：二进制加载"><a href="#子模块：二进制加载" class="headerlink" title="子模块：二进制加载"></a>子模块：二进制加载</h4><p>将应用程序二进制文件加载到分析系统的任务由一个名为CLE的模块处理。CLE对不同的二进制格式进行抽象，以处理加载给定的二进制文件及其所依赖的任何库、解析动态符号、执行重定位以及正确初始化程序状态等问题。 angr支持来自大多数posix兼容系统(Linux、FreeBSD等)、Windows和为DARPA网络大挑战创建的DECREE操作系统的二进制文件。CLE通过提供许多表示二进制对象(即应用程序二进制、POSIX .so或Windows .dll)的基类、这些对象中的段和段，以及表示这些段中位置的符号，为二进制加载器提供了一个可扩展的接口。CLE使用文件格式解析库(特别是用于Linux二进制文件的elftools和用于Windows二进制文件的pefile)来解析对象本身，然后执行必要的重定位以公开加载的应用程序的内存映像。</p>
+<h4 id="子模块：程序状态表示-修改"><a href="#子模块：程序状态表示-修改" class="headerlink" title="子模块：程序状态表示/修改"></a>子模块：程序状态表示/修改</h4><p>SimuVEX模块负责表示程序状态(即寄存器和内存中值的快照、打开的文件等)。状态在SimuVEX术语中被命名为SimState，它被实现为一组状态插件，当状态被创建时，由用户或分析指定的状态选项控制。目前，存在以下状态插件：</p>
+<ul>
+<li>Registers：SimuVEX在程序中任何给定点跟踪寄存器的值，作为相应程序状态的状态插件。</li>
+<li>Symbolic memory：SimuVEX提供了一个作为状态插件的符号内存模型。这实现了Mayhem提出的索引内存模型。</li>
+<li>Abstract memory：抽象内存提供了一个基于区域的内存模型。</li>
+<li>POSIX：当分析posix兼容环境的二进制文件时，SimuVEX在这个状态插件中跟踪系统状态。</li>
+<li>Log：SimuVEX跟踪这个插件中对状态所做的一切(例如，内存写入，文件读取等)的日志。</li>
+<li>Inspection：SimuVEX提供了一个强大的调试界面，允许在复杂的条件下设置断点，包括污染、精确的表达式构成和具有象征意义的条件。这个接口还可以用来改变SimuVEX的行为。例如，可以对内存读取进行测量，以模拟内存映射的I/O设备。</li>
+<li>Solver：求解器是一个插件，它通过数据模型提供者向不同的数据域公开接口。</li>
+<li>Architecture：架构插件提供了对分析有用的特定架构的信息(例如，堆栈指针的名称，架构的单词大小等)。</li>
+</ul>
+<p>SimuVEX提供了通过一个由vex表示的代码块处理输入状态的能力，并生成一个输出状态(或者一组输出状态，如果我们遇到一个可能有多个输出状态的块，比如条件跳转)。</p>
+<h4 id="子模块：数据模型"><a href="#子模块：数据模型" class="headerlink" title="子模块：数据模型"></a>子模块：数据模型</h4><p>存储在SimState寄存器和内存中的值由另一个模块Claripy提供的抽象表示。Claripy将所有值抽象为表达式的内部表示形式，用于跟踪使用该表达式的所有操作。Claripy提供了支持具体域(整数和浮点数)、符号域(符号整数和符号浮点数，由Z3 SMT求解器[25]提供)和V值集分析[6]的值集抽象域的后端。</p>
+<p>面向用户的操作，Claripy目前提供了几个前端：</p>
+<ul>
+<li>FullFrontend：这个前端向用户公开符号求解，跟踪约束，使用Z3后端解决它们，并缓存结果。</li>
+<li>CompositeFrontend：将约束分解为独立的集合可以减少求解器的负载。CompositeFrontend为这个功能提供了一个透明的接口。</li>
+<li>LightFrontend：这个前端不支持约束跟踪，只是使用VSA后端来解释VSA域中的表达式。</li>
+<li>ReplacementFrontend：扩展了LightFrontend，增加了对VSA值约束的支持。</li>
+<li>HybridFrontend：结合了FullFrontend和ReplacementFrontend，为符号约束求解提供快速逼近支持。</li>
+</ul>
+<h4 id="子模块：全程序分析"><a href="#子模块：全程序分析" class="headerlink" title="子模块：全程序分析"></a>子模块：全程序分析</h4><p>angr面向分析师的部分提供了完整的分析，如动态符号执行和控制流图恢复。进入这些分析的“入口点”是Project，它表示一个带有相关库的二进制文件。</p>
+<ul>
+<li>路径组：它跟踪路径在应用程序中运行、分离或终止的过程。</li>
+<li>分析：这个类管理静态分析的生命周期，如控制流图恢复，和复杂的动态分析。</li>
+</ul>
+<h4 id="开源版本"><a href="#开源版本" class="headerlink" title="开源版本"></a>开源版本</h4><p>angr用超过65000行代码实现，可以直接从IPython shell中使用，也可以作为python模块使用，并且可以通过标准python包管理器pip轻松安装。</p>
+<h3 id="实现：CFG恢复"><a href="#实现：CFG恢复" class="headerlink" title="实现：CFG恢复"></a>实现：CFG恢复</h3><p>给定一个特定的程序，angr执行迭代CFG恢复，从程序的入口点开始，并进行一些必要的优化。Angr结合了强制执行、向后切片和符号执行，尽可能地恢复每次间接跳转的所有跳转目标。此外，它生成并存储关于目标应用程序的大量数据，这些数据可以用于以后的其他分析，如数据依赖跟踪。</p>
+<h4 id="设想"><a href="#设想" class="headerlink" title="设想"></a>设想</h4><ol>
+<li>程序中的所有代码都可以分布到不同的函数中。</li>
+<li>在控制流中，所有函数要么由显式调用指令(或其等效指令)调用，要么在其之前进行尾跳(一种优化，通常用于减少递归函数的堆栈空间，在这种优化中，函数最后的调用被更改为跳，以便新调用的函数简单地重用其调用方的返回地址)。</li>
+<li>每个函数的堆栈清理行为都是可预测的，不管它是从哪里调用的。</li>
+</ol>
+<h4 id="迭代CFG生成"><a href="#迭代CFG生成" class="headerlink" title="迭代CFG生成"></a>迭代CFG生成</h4><p>CFGAccurate通过穿插一系列技术来构造一个CFG，以达到速度和完整性。具体来说，使用了四种技术：强制执行、轻量级反向切片、符号执行和值集分析。通过这些技术迭代恢复的 CFG。</p>
+<ul>
+<li><p>强制执行</p>
+<p>angr的CFGAccurate在CFG恢复的第一阶段中采用了动态强制执行的概念。强制执行确保有条件分支的两个方向都将在每个分支点执行。</p>
+</li>
+<li><p>符号执行</p>
+<p>对间接跳跃执行正向符号执行，并使用约束求解器检索间接跳跃目标的可能值。</p>
+</li>
+<li><p>反向切片</p>
+<p>为了实现更好的完整性，CFG生成需要一个上下文敏感的组件。通过向后切片来实现这一点。CFGAccurate从未解析的跳转开始计算一个向后的片段。片通过前一个调用上下文的开头进行扩展。</p>
+</li>
+</ul>
+<h4 id="CFGFast"><a href="#CFGFast" class="headerlink" title="CFGFast"></a>CFGFast</h4><p>CFG快速生成算法的目标是生成一个具有高代码覆盖率的图，至少能识别二进制文件中函数的位置和内容。</p>
+<ul>
+<li>识别功能：使用硬编码的函数序言签名来标识应用程序内部的函数。如果应用程序包含指定函数位置的符号，则还可以使用这些符号在图中填充函数开始位置。此外，表示程序入口点的基本块被添加到图中。</li>
+<li>递归分解：递归分解用于恢复已识别函数中的直接跳转。</li>
+<li>间接决议：采用轻量级别名分析、数据流跟踪和预定义策略来解决函数内控制流传输问题。</li>
+</ul>
+<h4 id="CFG恢复方法"><a href="#CFG恢复方法" class="headerlink" title="CFG恢复方法"></a>CFG恢复方法</h4><p>angr公开了CFG恢复算法的两种分析:CFGFast和CFGAccurate。</p>
+<h3 id="实现：值集分析"><a href="#实现：值集分析" class="headerlink" title="实现：值集分析"></a>实现：值集分析</h3><p>值集分析(VSA)是一种静态分析技术，它结合了二进制程序的数值分析和指针分析。它使用一个抽象域，称为值集抽象域，用于逼近寄存器或抽象位置在每个程序点可能持有的值。VSA分析一个程序，直到它达到函数中所有程序点的一个固定点。这个固定点表示函数中任何寄存器或抽象内存位置上的所有值都非常接近。</p>
+<ul>
+<li><p>创建一组离散的跨步区间</p>
+<p>VSA的基本数据类型，跨步区间，本质上是一组数字的近似。它对于逼近一组正常的具体值非常有用。然而，如果这些值在程序中用作跳转目标，跨步间隔的过度逼近性质会导致恢复的CFG不稳定，因为它创建了到不应该是跳转目标的地址的控制流转换。为了有效地解决这个问题，我们开发了一种新的数据类型，称为“跨步区间集”，它表示一组没有联合在一起的跨步间隔。一个跨步区间集只有包含超过K个元素时才会被合并为单个跨步区间，其中K是一个可以调整的阈值。</p>
+</li>
+<li><p>将代数求解器应用于路径谓词</p>
+<p>跟踪分支条件有助于我们在有条件退出后或在合并过程中约束处于某个状态的变量，这将产生更精确的分析结果。仿射关系分析被提出作为一种跟踪这些条件的技术。实现一个轻量级的代数求解器，工作在跨区间域，基于模算法照顾一些仿射关系。当看到一个新的路径谓词时(即，当遵循一个条件分支时)，我们试图简化并解决它，以获得路径谓词中涉及的变量的数字范围。然后，我们执行新生成的数字范围与每个对应变量的原始值之间的交集。</p>
+</li>
+<li><p>采用签名不可知域</p>
+<p>VSA操作于一个有符号的跨步区间域，该域假定所有值都有符号。一个用于分析LLVM代码的区间域，它同时处理有符号和无符号的数字。我们在此基础上建立了符号不可知性跨区间域，并应用于VSA域。</p>
+</li>
+</ul>
+<p>首先，我们在VSA期间收集程序中的所有读写访问模式。在这些访问模式之上，我们对堆栈和堆区域上的变量执行变量恢复。我们的实现类似于TIE中的变量恢复。接下来，我们扫描所有的堆栈和堆区域以找到异常缓冲区，包括重叠缓冲区和边界外缓冲区。然后我们只需将所有异常缓冲区报告为潜在的内存损坏。</p>
+<h5 id="使用VSA"><a href="#使用VSA" class="headerlink" title="使用VSA"></a>使用VSA</h5><p>angr提供给完整程序VSA分析的主要接口是V值流图。VFG是一个增强的CFG，它包括在每个程序位置表示VSA固定点的程序状态。根据传递给VFG分析的参数，这可以包括单个函数、函数调用树或整个程序。</p>
+<h3 id="实现：动态符号执行"><a href="#实现：动态符号执行" class="headerlink" title="实现：动态符号执行"></a>实现：动态符号执行</h3><p>动态符号执行模块主要基于Mayhem中描述的技术。我们的实现遵循相同的内存模型和路径优先级技术。我们使用Claripy的接口到Z3来填充由SimuVEX提供的符号内存模型(特别是SimSymbolicMemory)。程序中的各个执行路径由Path对象管理，该对象由angr提供，它跟踪路径所采取的操作、路径谓词和各种其他特定于路径的信息。这些路径组由angr的PathGroup功能管理，该功能提供了一个接口，用于在动态符号执行期间管理路径的拆分、合并和过滤。</p>
+<h3 id="实现：不受约束的符号执行"><a href="#实现：不受约束的符号执行" class="headerlink" title="实现：不受约束的符号执行"></a>实现：不受约束的符号执行</h3><p>UCSE是一种动态的符号执行技术，它在每个函数上分别执行。UCSE标记在状态中缺少上下文作为不受约束。当这样的欠约束数据被用作指针时，一个新的欠约束区域被创建，指针指向新的区域。这种“按需”的内存分配使管理复杂数据结构的代码能够被分析。当安全违规被识别时(例如，写入堆栈上保存的返回地址)，相关的值将被检查它们的非约束状态。对UCSE中描述的技术做了两个修改：</p>
+<ul>
+<li><p>全局内存欠约束</p>
+<p>将所有全局数据标记为不足约束，从而降低误报率。</p>
+</li>
+<li><p>路径限制器</p>
+<p>最初的UC-KLEE实现有几个内置限制，以防止路径爆炸。例如，它们会限制约束不足的指针解引用的深度，以避免对约束不足的链表的搜索永远不会终止。添加了一个额外的限制条件:当我们发现一个函数会导致路径爆炸时，我们会中止对它的分析。</p>
+</li>
+<li><p>假阳性筛选</p>
+<p>当我们检测到一个可利用的状态时，我们试图确保该状态不会因为缺乏约束不足的数据的约束而被错误地利用。首先，我们使用附加约束E来执行约束求解，该约束表示状态不可利用的事实(即，如果安全违规是对返回地址的重写，则我们对状态进行约束，以便返回地址不可能被重写)。然后，我们将每个不受约束的值从这个不可利用状态约束到其可能的解。我们称这些约束为U。最后，我们去掉约束E，保留约束U，并进行检查状态仍然可以被利用。</p>
+</li>
+</ul>
+<p>UC-angr是作为一个SimState插件实现的，它可以跟踪不受约束的数据访问，并执行所需的重定位。一旦这个插件被初始化，不受约束的符号执行就可以使用与动态符号执行相同的PathGroup范例来执行。</p>
+<h3 id="实现：符号引导模糊测试"><a href="#实现：符号引导模糊测试" class="headerlink" title="实现：符号引导模糊测试"></a>实现：符号引导模糊测试</h3><p>以AFL模糊化为基础，以angr为符号跟踪器。通过监视AFL的性能，我们可以决定何时开始象征性地跟踪AFL创建的输入。为了做出这个决定，我们根据模糊器发现新状态转换的速度来行动。</p>
+<p>Driller的符号组件使用angr的符号执行引擎实现，从而根据AFL提供的具体输入实现符号跟踪路径。这避免了符号执行中固有的路径爆炸问题，因为每个具体的输入对应于单个(跟踪)路径，并且这些输入被AFL严格过滤，以确保只跟踪有希望的输入。每个具体的输入对应于PathGroup中的一个单独的路径。在PathGroup的每一步，都会检查每个分支，以确保最近的跳转指令指向AFL之前不知道的路径。当发现这样的跳转时，将查询SMT解算器，以创建一个将驱动执行新跳转的输入。这个输入被反馈给AFL, AFL在未来的模糊步骤中继续改变它。</p>
+<h3 id="实现：崩溃重现"><a href="#实现：崩溃重现" class="headerlink" title="实现：崩溃重现"></a>实现：崩溃重现</h3><p>程序p作为输入,初始状态sa(即状态可执行的入口点),崩溃状态qa,和输入ia带来sa的qa测试(de-randomized)环境中,但不适当的重赛的需要环境。我们的实现使用输入ia象征性地执行从sa到qa的路径。它记录在执行P时生成的所有约束。给定约束、执行路径、程序P和新的初始状态sb，我们可以用一个无约束的符号输入象征性地执行P，遵循先前记录的执行路径，直到到达新的崩溃状态qb。此时，可以分析输入和输出的输入约束，并恢复它们之间的关系。</p>
+<h3 id="实现：利用生成"><a href="#实现：利用生成" class="headerlink" title="实现：利用生成"></a>实现：利用生成</h3><ul>
+<li><p>脆弱状态</p>
+<p>通过使用angr对崩溃的程序输入执行concolic执行来生成漏洞。我们推动concolic向前执行，迫使它遵循与应用于程序的崩溃输入所收集的动态跟踪相同的路径。Concolic执行在程序崩溃的地方停止，我们检查符号状态以确定崩溃的原因并度量可利用性。</p>
+</li>
+<li><p>指令指针重写</p>
+<p>当检测到指令指针中包含符号位时，我们可以约束我们的指令指针指向一个受控制的指令序列，比如shellcode，或者一个ROP小工具，它将堆栈旋转到一个符号缓冲区，在这个缓冲区中我们可以执行ROP链(由我们的exploit加固步骤生成)。</p>
+</li>
+<li><p>利用 CGC 二进制文件</p>
+</li>
+<li><p>面临的挑战</p>
+<p>路径谓词，它将溢出数据的每个字节限制为单个值，尽管这些字节的值是根据符号输入选择的。</p>
+</li>
+</ul>
+<h3 id="实现：利用强化"><a href="#实现：利用强化" class="headerlink" title="实现：利用强化"></a>实现：利用强化</h3><ul>
+<li><p>设备发现</p>
+<p>我们扫描应用程序中的所有可执行代码，以每个字节的偏移量来识别ROP小工具，并根据它们的效果对它们进行分类。</p>
+</li>
+<li><p>设备安排</p>
+<p>然后，ROP链编译器确定可用于执行高级操作的gadget的排列。</p>
+</li>
+<li><p>payload生成</p>
+<p>在ROP编译器确定必要的gadget安排集之后，它将这些gadget组合成一个链来执行高级操作(例如使用指定参数执行攻击者指定的系统调用)。</p>
+</li>
+</ul>
+<h3 id="对比评估"><a href="#对比评估" class="headerlink" title="对比评估"></a>对比评估</h3><ul>
+<li><p>CFG恢复</p>
+<p>angr有两种CFG恢复算法:CFGAccurate依赖于强制执行的基本方法，并提供了两种间接跳转分辨率的方法(向后分层和符号向后遍历)，而CFGFast主要使用递归分解和启发式快速识别函数和函数间控制流。</p>
+<p>首先评估CFG的完整性，将CFGFast识别的块和边与IDA Pro生成的图进行比较。CFGFast比IDA Pro有更好的代码覆盖率，并恢复更多的边缘。</p>
+<p>通过改进后向切片的强制执行技术，angr极大地提高了CFG的重构能力。然而，由于CFGAccurate没有利用特别的启发式，因此产生的CFG的代码覆盖率不像IDA Pro的那样高。</p>
+</li>
+<li><p>脆弱性分析技术评价</p>
+<ul>
+<li>动态符号执行</li>
+<li>符号引导的fuzzing</li>
+<li>DSE vs. fuzzing</li>
+<li>欠约束的符号执行</li>
+<li>静态缓冲重叠检测</li>
+<li>非重放性vs重放性分析</li>
+</ul>
+</li>
+<li><p>漏洞利用评估</p>
+<ul>
+<li>崩溃重现</li>
+<li>自动利用生成</li>
+<li>利用强化</li>
+</ul>
+</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>angr系统在一个统一的框架中实现了一系列自动识别和利用二进制文件漏洞的技术。angr开源，这样社区就可以在它的基础上进行构建，并专注于解决二元分析领域的开放挑战。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lemon8888.github.io/2022/08/08/(State of) The Art of War-Offensive Techniques in Binary Analysis/">https://lemon8888.github.io/2022/08/08/(State of) The Art of War-Offensive Techniques in Binary Analysis/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lemon8888.github.io">Stay hungry, Stay foolish</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/binary-analysis/">binary analysis</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2022/08/11/Driller-Augmenting%20Fuzzing%20Through%20Selective%20Symbolic%20Execution/"><i class="fa fa-chevron-left">  </i><span>Driller：Augmenting Fuzzing Through Selective Symbolic Execution</span></a></div><div class="next-post pull-right"><a href="/2022/08/01/KLEE-Unassisted%20and%20Automatic%20Generation%20of%20High-Coverage/"><span>KLEE：Unassisted and Automatic Generation of High-Coverage Tests for Complex Systems Programs</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

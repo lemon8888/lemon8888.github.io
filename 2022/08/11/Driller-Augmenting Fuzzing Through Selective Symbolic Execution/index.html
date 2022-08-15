@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Driller：Augmenting Fuzzing Through Selective Symbolic Execution"><meta name="keywords" content="fuzzing,symbolic execution"><meta name="author" content="Phenix"><meta name="copyright" content="Phenix"><title>Driller：Augmenting Fuzzing Through Selective Symbolic Execution | Stay hungry, Stay foolish</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.2'
+} </script><meta name="generator" content="Hexo 5.4.2"></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="toc-number">1.</span> <span class="toc-text">相关工作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Driller-%E6%A6%82%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">Driller 概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Fuzzing"><span class="toc-number">3.</span> <span class="toc-text">Fuzzing</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E6%80%A7%E6%B7%B7%E5%90%88%E6%89%A7%E8%A1%8C"><span class="toc-number">4.</span> <span class="toc-text">选择性混合执行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%84%E4%BC%B0"><span class="toc-number">5.</span> <span class="toc-text">评估</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s3.ax1x.com/2021/02/03/yKqJde.jpg"></div><div class="author-info__name text-center">Phenix</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">20</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">15</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">8</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Stay hungry, Stay foolish</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">Driller：Augmenting Fuzzing Through Selective Symbolic Execution</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-08-11</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/PaperNotes/">PaperNotes</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><blockquote>
+<p><a target="_blank" rel="noopener" href="https://sites.cs.ucsb.edu/~chris/research/doc/ndss16_driller.pdf">Stephens, Nick et al. “Driller: Augmenting Fuzzing Through Selective Symbolic Execution.” <em>NDSS</em> (2016).</a></p>
+</blockquote>
+<p>Driller是一种混合漏洞挖掘工具，它以一种互补的方式利用模糊和选择性混合执行来发现更深层的漏洞。普通的模糊测试用于执行应用程序的各个部分，而混合执行用于生成满足分离各个部分的复杂检查的输入。通过结合两种方法的优点，我们缓解了它们的缺点，避免了具体分析中固有的路径爆炸和模糊不完全。Driller采用选择性混合执行，只探索模糊测试器感兴趣的路径，并生成模糊测试器无法满足的条件的输入。结合了基因输入突变模糊器和选择性混合执行引擎，以识别二进制文件中的深层漏洞。结合这两种技术，Driller可以以一种可扩展的方式运行，无需输入测试用例。</p>
+<h4 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h4><ul>
+<li><p>导向模糊测试</p>
+<p>Fuzzing最初是作为测试UNIX实用程序的几种工具之一引入的。从那时起，它被广泛用于应用程序的黑盒安全测试。然而，模糊测试缺乏指导——新的输入是基于先前输入的随机突变产生的，没有控制应用程序中的哪些路径应该是目标。</p>
+<p>制导模糊化的概念产生了，以更好地直接模糊化针对特定类别的漏洞。</p>
+</li>
+<li><p>白盒模糊测试</p>
+<p>试图混合模糊和符号执行以获得最大的代码覆盖率，倾向于通过符号化地执行由模糊引擎产生的输入，收集放置在该输入上的符号约束，并消除这些约束来生成将采取其他路径的输入，从而增强模糊化。</p>
+</li>
+<li><p>混合执行（Concolic Execution）</p>
+<p>Concolic执行(也称为动态符号执行)越来越受欢迎。 concolic执行引擎解释应用程序，使用符号变量模型用户输入，跟踪条件跳转引入的约束，并使用约束求解器创建输入，以驱动应用程序沿着特定路径。</p>
+</li>
+</ul>
+<h4 id="Driller-概述"><a href="#Driller-概述" class="headerlink" title="Driller 概述"></a>Driller 概述</h4><p>Driller设计的核心理念是应用程序处理两种不同类型的用户输入：通用输入(代表大量有效值)和特定输入(必须从少数可能的值中选择一个输入)。从概念上讲，应用程序对后一种输入类型的检查将应用程序分为几个部分。执行流通过检查特定的输入在不同的区域之间移动，而在一个区域内，应用程序处理一般的输入。</p>
+<p>将模糊测试的速度与混合执行的输入推理能力相结合。这使得Driller能够快速地探索对用户输入没有复杂要求的二进制文件的部分，同时能够处理特定输入的复杂检查，而不存在纯concolic执行的可伸缩性问题。</p>
+<p>Driller由多个组件组成：</p>
+<ul>
+<li>Input test cases</li>
+<li>Fuzzing</li>
+<li>Concolic Execution</li>
+<li>Repeat</li>
+</ul>
+<h4 id="Fuzzing"><a href="#Fuzzing" class="headerlink" title="Fuzzing"></a>Fuzzing</h4><p>Fuzzing是一种使用大量输入执行应用程序的技术，检查这些输入是否会导致应用程序崩溃。Driller采用了模糊测试器American Fuzzy Lop (AFL) .AFL的特性：</p>
+<ul>
+<li><p>Genetic fuzzing</p>
+<p>AFL通过遗传算法进行输入生成，根据遗传规则(转录、插入等)对输入进行突变，并通过适应度函数进行排序。</p>
+</li>
+<li><p>State transition tracking</p>
+<p>AFL跟踪它从输入中看到的控制流转换的联合，作为源和目标基本块的元组。</p>
+</li>
+<li><p>Loop “bucketization”</p>
+<p>当AFL检测到一条路径包含一个循环的迭代时，就会触发二次计算，以确定该路径是否符合繁殖条件。AFL确定所执行的循环迭代次数，并将其与导致路径经过相同循环的前一个输入进行比较。</p>
+</li>
+<li><p>Derandomization</p>
+<p>将AFL的QEMU后端预先设置为特定的随机种子，以确保执行的一致性。</p>
+</li>
+</ul>
+<p>模糊测试器的局限：</p>
+<ul>
+<li>生成“特定”输入来通过应用程序中的复杂检查(例如，检查需要输入的特定值很少)对模糊器来说是非常具有挑战性的。</li>
+</ul>
+<p>Driller的目标是弥补模糊识别的根本缺陷，通过利用锥体执行的强度来确定通过复杂检查所需的特定用户输入。</p>
+<h4 id="选择性混合执行"><a href="#选择性混合执行" class="headerlink" title="选择性混合执行"></a>选择性混合执行</h4><p>当Driller判断模糊器无法找到额外的状态转换时，就会调用concolic执行引擎。</p>
+<ul>
+<li><p>混合执行</p>
+<p>在整个执行过程中，分析引擎跟踪内存和寄存器(前面提到的符号状态)中的所有具体和符号值。在引擎到达的程序中的任何一点，都可以执行约束解析，以确定一个可能的输入，满足状态中所有符号变量的约束。Driller的符号存储模型可以同时存储具体值和符号值。它使用基于索引的内存模型，其中读地址可能是符号的，但写地址总是具体化的。</p>
+</li>
+<li><p>局限</p>
+<ul>
+<li>混合执行是缓慢的。这是由解释应用程序代码的需要(与原生执行相反，如使用模糊器)和约束解决步骤所涉及的开销引起的。</li>
+<li>路径爆炸</li>
+</ul>
+</li>
+<li><p>Driller中的混合执行</p>
+<p>当fuzzing无法发现导致新的执行路径的输入时，将调用concolic执行引擎。</p>
+<ul>
+<li>Pre-constrained Tracing：当跟踪从模糊器传递到符号执行时，目标是发现模糊测试以前没有发现的新转换。Driller混合执行引擎跟踪输入信号，并与模糊器所走的路径一致。当drilller遇到有条件的控制流转换时，它会检查是否会发现新的状态转换。</li>
+<li>Input Preconstraining：Driller使用预约束来确保concolic执行引擎的结果与本地执行的结果相同，同时保持发现新状态转换的能力。</li>
+<li>Limited Symbolic Exploration：引入了一个符号探索存根，以便在新发现的状态转换之后直接发现更多的状态转换。这个符号探索存根探索状态转换的周围区域，直到资源管理器遍历了数量可配置的基本块为止。</li>
+<li>Re-randomization：一旦漏洞被发现，使用符号执行来跟踪崩溃的输入，并恢复需要满足目标二进制文件动态检查的输入字节。通过检查崩溃时的符号状态，并找到应用程序输出和崩溃输入之间的关系，Driller可以确定应用程序的挑战-响应协议。</li>
+</ul>
+</li>
+</ul>
+<h4 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h4><ul>
+<li><p>数据集：Cyber Grand Challenge (CGC)</p>
+<p>在126个应用程序中，符号执行只发现了16个漏洞。在我们的实验数据集中的126个Cyber Grand Challenge应用程序中，事实证明模糊处理足以发现68个程序的崩溃。在Driller作业中，fuzzer调用了41个“卡住”的二进制文件的concolic执行组件。其中，Driller的concolic技术能够为13种应用产生101个新输入。利用这些额外的输入，AFL能够恢复额外的9个故障，使Driller实验期间识别的故障总数达到77个，这意味着与发现的漏洞相比，Driller实现了12%的基线模糊化。</p>
+</li>
+<li><p>状态转换覆盖</p>
+</li>
+<li><p>应用程序组件覆盖</p>
+</li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lemon8888.github.io/2022/08/11/Driller-Augmenting Fuzzing Through Selective Symbolic Execution/">https://lemon8888.github.io/2022/08/11/Driller-Augmenting Fuzzing Through Selective Symbolic Execution/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lemon8888.github.io">Stay hungry, Stay foolish</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/fuzzing/">fuzzing</a><a class="post-meta__tags" href="/tags/symbolic-execution/">symbolic execution</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2022/08/13/Firmalice-Automatic%20Detection%20of%20Authentication%20Bypass%20Vulnerabilities%20in%20Binary%20/"><i class="fa fa-chevron-left">  </i><span>Firmalice - Automatic Detection of Authentication Bypass Vulnerabilities in Binary Firmware</span></a></div><div class="next-post pull-right"><a href="/2022/08/08/(State%20of)%20The%20Art%20of%20War-Offensive%20Techniques%20in%20Binary%20Analysis/"><span>(State of) The Art of War：Offensive Techniques in Binary Analysis</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>
