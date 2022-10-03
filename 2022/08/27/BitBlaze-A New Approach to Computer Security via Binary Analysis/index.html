@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="BitBlaze：A New Approach to Computer Security via Binary Analysis"><meta name="keywords" content=""><meta name="author" content="Phenix"><meta name="copyright" content="Phenix"><title>BitBlaze：A New Approach to Computer Security via Binary Analysis | Stay hungry, Stay foolish</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.2'
+} </script><meta name="generator" content="Hexo 5.4.2"></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Vine%EF%BC%9A%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90%E7%BB%84%E4%BB%B6"><span class="toc-number">2.</span> <span class="toc-text">Vine：静态分析组件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TEMU%EF%BC%9A%E5%8A%A8%E6%80%81%E5%88%86%E6%9E%90%E7%BB%84%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">TEMU：动态分析组件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Rudder%EF%BC%9A%E6%B7%B7%E5%90%88%E7%9A%84%E5%85%B7%E4%BD%93%E5%92%8C%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C"><span class="toc-number">4.</span> <span class="toc-text">Rudder：混合的具体和符号执行</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s3.ax1x.com/2021/02/03/yKqJde.jpg"></div><div class="author-info__name text-center">Phenix</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">22</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">15</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">9</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Stay hungry, Stay foolish</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">BitBlaze：A New Approach to Computer Security via Binary Analysis</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-08-27</time></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h4 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h4><p>BitBlaze二进制分析平台由三部分组成：静态分析组件Vine、动态分析组件TEMU和将动态分析和静态分析相结合的具体和符号的混合执行分析组件Rudder。</p>
+<ul>
+<li>Vine：将汇编转换为中间语言，对其进行静态分析，如控制流、数据流、优化、符号执行和最弱前置条件计算。</li>
+<li>TEMU：执行全系统动态分析，实现全系统细粒度监控和动态二进制仪表。用于提取操作系统级别的语义、用户定义的污点分析以及用于用户定义活动的插件接口。</li>
+<li>Rudder：在二进制级别上实现了具体和符号的混合执行。对于给定的程序执行路径，表示符号输入需要满足的符号路径谓词，以遵循程序路径。通过查询决策程序求解器，确定路径是否可行，以及哪些输入可以导致程序执行遵循给定的路径。使用户能够探索状态进行快照和重新加载，并提供了用户指定的路径选择策略。</li>
+</ul>
+<h4 id="Vine：静态分析组件"><a href="#Vine：静态分析组件" class="headerlink" title="Vine：静态分析组件"></a>Vine：静态分析组件</h4><p>Vine静态分析组件分为特定于平台的前端和独立于平台的后端。核心是一种独立于平台的汇编中间语言。底层架构中的组装指令通过Vine前端提升到Vine IL。所有的后端分析都是在平台无关的IL上执行的。用户可通过在Vine提供的核心实用程序之上构建，编写自己的IL分析。后端具有用于创建不同图的实用程序，还提供了优化框架用于简化一组特定的指令。还提供了程序验证功能，如符号执行、计算最弱的前提条件，以及与决策程序的接口。为了将静态分析和动态分析结合起来，还提供了一个接口，让Vine读取由动态分析组件生成的执行跟踪。</p>
+<ul>
+<li><p>Vine Intermediate Language（Vine IL）</p>
+<p>Vine IL是提升过程中的目标语言，也是后端程序分析的分析语言。Vine IL中的基类型为1、8、16、32、64位寄存器和存储器，内存类型由其字节顺序限定，内存类型也由索引类型限定，索引类型必须是寄存器类型。</p>
+<p>Vine中有三种类型的值：</p>
+<ul>
+<li>有n个类型值</li>
+<li>Vine内存值（表示用作地址的数字、表示存储在地址中的值）</li>
+<li>表示执行失败的值</li>
+</ul>
+</li>
+<li><p>Vine的前端</p>
+<p>负责将二进制代码转换为Vine IL，步骤为：</p>
+<ol>
+<li>将二进制文件反汇编</li>
+<li>反汇编被传递给第三方库VEX，将汇编指令转换为VEX</li>
+<li>中间语言把VEX IL翻译成Vine</li>
+</ol>
+</li>
+<li><p>Vine的后端</p>
+<p>Vine提供了一个常见分析和实用程序库，作为更高级分析的构建模块：</p>
+<ul>
+<li><p>Evaluator</p>
+<p>实现了Vine IL的操作语义，允许执行程序，而不需要将IL重新编译回汇编。</p>
+</li>
+<li><p>Graph</p>
+<p>构建和操作控制流图（CFG）的例程，包括用于graphviz DOT图形语言的打印，还提供了构建数据依赖关系图和程序依赖关系图的实用工具。</p>
+</li>
+<li><p>Single Static Assignment</p>
+<p>Vine支持与单一静态赋值（SSA）表单之间的转换。</p>
+</li>
+<li><p>Chopping</p>
+<p>给定源节点和接收节点，程序切块是一个图，它显示了导致源的定义影响接收使用的语句。</p>
+</li>
+<li><p>Data-flow and Optimizations</p>
+<p>Vine提供了一个通用的数据流引擎，适用于用户定义的网格。还实现了几种数据流分析。</p>
+</li>
+<li><p>C Code Generator</p>
+<p>Vine可以从IL生成有效的C代码。</p>
+</li>
+<li><p>Program Verification Analysis</p>
+<p>Vine支持两种形式的程序验证。首先，Vine可以将IL转换为Dijkstra的守卫命令语言（GCL），并计算相对于GCL程序的最弱前提条件。Vine还与决策程序交互，可以用CVC Lite语法写出表达式，它有几个决策过程支持。</p>
+</li>
+</ul>
+</li>
+<li><p>Vine的实现</p>
+<p>前端用C++实现，后端用OCaml实现。</p>
+</li>
+</ul>
+<h4 id="TEMU：动态分析组件"><a href="#TEMU：动态分析组件" class="headerlink" title="TEMU：动态分析组件"></a>TEMU：动态分析组件</h4><p>构建了语义提取器，从仿真系统中提取操作系统级语义信息。建立了污点分析引擎来执行动态污点分析。定义并实现了一个接口(即TEMU API)，用户可以方便地实现自己的分析模块(即TEMU插件)。可以在运行时加载和卸载这些模块，以执行指定的分析。</p>
+<ul>
+<li><p>语义提取器</p>
+<p>语义提取器负责提取仿真系统的操作系统级语义信息，包括进程、模块、线程和符号信息。</p>
+</li>
+<li><p>污点分析引擎</p>
+<ul>
+<li><p>影子内存</p>
+<p>使用一个影子内存来存储物理内存、CPU寄存器、硬盘和网络接口缓冲区中每个字节的污染状态。</p>
+</li>
+<li><p>污染源</p>
+<p>TEMU插件负责将污染源引入系统</p>
+</li>
+<li><p>污点传播</p>
+<p>在一个数据源被污染后，污点分析引擎会监视每个CPU指令和操作该数据的DMA操作，以确定污点如何传播。污点分析引擎通过数据移动指令、DMA操作、算术操作和表查找污点传播。</p>
+</li>
+</ul>
+</li>
+<li><p>TEMU API和插件</p>
+<p>TEMU提供的功能：</p>
+<ul>
+<li><p>查询和设置内存单元或CPU寄存器的值。</p>
+</li>
+<li><p>查询和设置内存或寄存器的污染信息。</p>
+</li>
+<li><p>在函数的入口和出口注册一个hook，并移除一个hook。TEMU插件可以使用这个界面来监视用户和内核函数。</p>
+</li>
+<li><p>查询os级语义信息，如当前进程、模块、线程等。</p>
+</li>
+<li><p>保存并加载仿真系统状态。该接口有助于在不同的机器状态之间切换，以实现更高效的分析。</p>
+</li>
+</ul>
+<p>TEMU定义了各种事件的回调函数，包括：</p>
+<ul>
+<li>基本块的进入和退出</li>
+<li>指令的进入和退出</li>
+<li>当污染传播时</li>
+<li>当存储器被读写时</li>
+<li>当寄存器被读取或写入时</li>
+<li>网络和磁盘输入输出等硬件事件</li>
+</ul>
+<p>很多TEMU插件都是通过使用这些函数和回调实现的。这些插件包括：</p>
+<ul>
+<li><p>Panorama：一个基于操作系统感知的全系统污染分析插件，用于检测和分析恶意代码的信息处理行为。</p>
+</li>
+<li><p>HookFinder：一个执行细粒度影响分析(污染分析的变体)的插件，以检测和分析恶意软件的挂钩行为。</p>
+</li>
+<li><p>Renovo：一个从打包的可执行文件中提取解压缩代码的插件。</p>
+</li>
+<li><p>Polyglot：一个利用动态污染分析来提取协议消息格式的插件。</p>
+</li>
+<li><p>Tracecap：一个用于记录带有污染信息的指令跟踪的插件。</p>
+</li>
+<li><p>MineSweeper：一个通过执行在线符号执行来识别和揭示恶意软件中基于触发的行为的插件。</p>
+</li>
+<li><p>BitScope：一个更通用的插件，利用符号执行来对恶意软件进行深入分析。</p>
+</li>
+<li><p>HookScout：一个推断内核数据结构的插件。</p>
+</li>
+</ul>
+</li>
+<li><p>TEMU的实现</p>
+<p>TEMU的基础架构是用C和c++实现的。</p>
+</li>
+</ul>
+<h4 id="Rudder：混合的具体和符号执行"><a href="#Rudder：混合的具体和符号执行" class="headerlink" title="Rudder：混合的具体和符号执行"></a>Rudder：混合的具体和符号执行</h4><p>在二进制级别上执行混合的具体和符号执行。给定一个二进制程序和一个符号输入规范，Rudder将执行具体执行和符号执行的混合执行，并在路径条件依赖于符号输入时探索多个执行路径。通过这样做，能够自动发现只有在特定的条件下显示的隐行为。</p>
+<ul>
+<li>混合执行引擎<ul>
+<li>决定是否符号执行</li>
+<li>制定一个符号程序</li>
+<li>提取符号表达式</li>
+</ul>
+</li>
+<li>路径选择器</li>
+<li>求解器</li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lemon8888.github.io/2022/08/27/BitBlaze-A New Approach to Computer Security via Binary Analysis/">https://lemon8888.github.io/2022/08/27/BitBlaze-A New Approach to Computer Security via Binary Analysis/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lemon8888.github.io">Stay hungry, Stay foolish</a>！</span></div></div><div class="post-meta__tag-list"></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2022/08/30/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%EF%BC%881%EF%BC%89/"><i class="fa fa-chevron-left">  </i><span>逆向工程核心原理（1）--逆向分析Hello World程序</span></a></div><div class="next-post pull-right"><a href="/2022/08/15/angr-code/"><span>angr-code</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>

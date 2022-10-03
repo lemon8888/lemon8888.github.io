@@ -1,0 +1,1559 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="angr学习"><meta name="keywords" content="symbolic execution,binary analysis"><meta name="author" content="Phenix"><meta name="copyright" content="Phenix"><title>angr学习 | Stay hungry, Stay foolish</title><link rel="shortcut icon" href="/melody-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.9.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.9.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  hexoVersion: '5.4.2'
+} </script><meta name="generator" content="Hexo 5.4.2"></head><body><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Core-Concepts"><span class="toc-number">1.</span> <span class="toc-text">Core Concepts</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Top-Level-Interfaces"><span class="toc-number">1.1.</span> <span class="toc-text">Top Level Interfaces</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Basic-properties"><span class="toc-number">1.1.1.</span> <span class="toc-text">Basic properties</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#The-loader"><span class="toc-number">1.1.2.</span> <span class="toc-text">The loader</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#The-factory"><span class="toc-number">1.1.3.</span> <span class="toc-text">The factory</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Blocks"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">Blocks</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#States"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">States</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Simulation-Managers"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">Simulation Managers</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Analyses"><span class="toc-number">1.1.4.</span> <span class="toc-text">Analyses</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loading-a-Binary"><span class="toc-number">1.2.</span> <span class="toc-text">Loading a Binary</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#The-Loader"><span class="toc-number">1.2.1.</span> <span class="toc-text">The Loader</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Loaded-Objects"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">Loaded Objects</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Symbols-and-Relocations"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">Symbols and Relocations</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Loading-Options"><span class="toc-number">1.2.2.</span> <span class="toc-text">Loading Options</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Basic-Options"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">Basic Options</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Per-Binary-Options"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">Per-Binary Options</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Backend"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">Backend</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Symbolic-Function-Summaries"><span class="toc-number">1.2.3.</span> <span class="toc-text">Symbolic Function Summaries</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Hooking"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">Hooking</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Solver-Engine"><span class="toc-number">1.3.</span> <span class="toc-text">Solver Engine</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Working-with-Bitvectors"><span class="toc-number">1.3.1.</span> <span class="toc-text">Working with Bitvectors</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Symbolic-Constraints"><span class="toc-number">1.3.2.</span> <span class="toc-text">Symbolic Constraints</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Constraint-Solving"><span class="toc-number">1.3.3.</span> <span class="toc-text">Constraint Solving</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Floating-point-numbers"><span class="toc-number">1.3.4.</span> <span class="toc-text">Floating point numbers</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#More-Solving-Methods"><span class="toc-number">1.3.5.</span> <span class="toc-text">More Solving Methods</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Program-State"><span class="toc-number">1.4.</span> <span class="toc-text">Program State</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Review-Reading-and-writing-memory-and-registers"><span class="toc-number">1.4.1.</span> <span class="toc-text">Review: Reading and writing memory and registers</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Basic-Execution"><span class="toc-number">1.4.2.</span> <span class="toc-text">Basic Execution</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#State-Presets"><span class="toc-number">1.4.3.</span> <span class="toc-text">State Presets</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Low-level-interface-for-memory"><span class="toc-number">1.4.4.</span> <span class="toc-text">Low level interface for memory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#State-Options"><span class="toc-number">1.4.5.</span> <span class="toc-text">State Options</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#State-Plugins"><span class="toc-number">1.4.6.</span> <span class="toc-text">State Plugins</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#The-globals-plugin"><span class="toc-number">1.4.6.1.</span> <span class="toc-text">The globals plugin</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#The-history-plugin"><span class="toc-number">1.4.6.2.</span> <span class="toc-text">The history plugin</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#The-callstack-plugin"><span class="toc-number">1.4.6.3.</span> <span class="toc-text">The callstack plugin</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Copying-and-Merging"><span class="toc-number">1.4.7.</span> <span class="toc-text">Copying and Merging</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Simulation-Managers-1"><span class="toc-number">1.5.</span> <span class="toc-text">Simulation Managers</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Stepping"><span class="toc-number">1.5.1.</span> <span class="toc-text">Stepping</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Stash-Management"><span class="toc-number">1.5.2.</span> <span class="toc-text">Stash Management</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Stash-types"><span class="toc-number">1.5.3.</span> <span class="toc-text">Stash types</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Simple-Exploration"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">Simple Exploration</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Exploration-Techniques"><span class="toc-number">1.5.4.</span> <span class="toc-text">Exploration Techniques</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Execution-Engines"><span class="toc-number">1.6.</span> <span class="toc-text">Execution Engines</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SimSuccessors"><span class="toc-number">1.6.1.</span> <span class="toc-text">SimSuccessors</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Breakpoints"><span class="toc-number">1.6.2.</span> <span class="toc-text">Breakpoints</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Caution-about-mem-read-breakpoint"><span class="toc-number">1.6.3.</span> <span class="toc-text">Caution about mem_read breakpoint</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Analyses-1"><span class="toc-number">1.7.</span> <span class="toc-text">Analyses</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Built-in-Analyses"><span class="toc-number">1.8.</span> <span class="toc-text">Built-in Analyses</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Resilience"><span class="toc-number">1.8.1.</span> <span class="toc-text">Resilience</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Built-in-Analyses-1"><span class="toc-number">2.</span> <span class="toc-text">Built-in Analyses</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CFG"><span class="toc-number">2.1.</span> <span class="toc-text">CFG</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#General-ideas"><span class="toc-number">2.1.1.</span> <span class="toc-text">General ideas</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Using-the-CFG"><span class="toc-number">2.1.2.</span> <span class="toc-text">Using the CFG</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Viewing-the-CFG"><span class="toc-number">2.1.2.1.</span> <span class="toc-text">Viewing the CFG</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Shared-Libraries"><span class="toc-number">2.1.3.</span> <span class="toc-text">Shared Libraries</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Function-Manager"><span class="toc-number">2.1.4.</span> <span class="toc-text">Function Manager</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CFGFast-details"><span class="toc-number">2.1.5.</span> <span class="toc-text">CFGFast details</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Finding-function-starts"><span class="toc-number">2.1.5.1.</span> <span class="toc-text">Finding function starts</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#FakeRets-and-function-returns"><span class="toc-number">2.1.5.2.</span> <span class="toc-text">FakeRets and function returns</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Options"><span class="toc-number">2.1.5.3.</span> <span class="toc-text">Options</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CFGEmulated-details"><span class="toc-number">2.1.6.</span> <span class="toc-text">CFGEmulated details</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Options-1"><span class="toc-number">2.1.6.1.</span> <span class="toc-text">Options</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Context-Sensitivity-Level"><span class="toc-number">2.1.6.2.</span> <span class="toc-text">Context Sensitivity  Level</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Backward-Slicing"><span class="toc-number">2.2.</span> <span class="toc-text">Backward Slicing</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#First-Step-First"><span class="toc-number">2.2.1.</span> <span class="toc-text">First Step First</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Using-The-BackwardSlice-Object"><span class="toc-number">2.2.2.</span> <span class="toc-text">Using The BackwardSlice Object</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Members"><span class="toc-number">2.2.2.1.</span> <span class="toc-text">Members</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Function-Identifier"><span class="toc-number">2.3.</span> <span class="toc-text">Function Identifier</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Advanced-Topics"><span class="toc-number">3.</span> <span class="toc-text">Advanced Topics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gotchas"><span class="toc-number">3.1.</span> <span class="toc-text">Gotchas</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SimProcedure-inaccuracy"><span class="toc-number">3.1.1.</span> <span class="toc-text">SimProcedure inaccuracy</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Extending-angr"><span class="toc-number">4.</span> <span class="toc-text">Extending angr</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Programming-SimProcedures"><span class="toc-number">4.1.</span> <span class="toc-text">Programming SimProcedures</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Quick-Start"><span class="toc-number">4.1.1.</span> <span class="toc-text">Quick Start</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Implementation-Context"><span class="toc-number">4.1.2.</span> <span class="toc-text">Implementation Context</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#kwargs"><span class="toc-number">4.1.2.1.</span> <span class="toc-text">kwargs</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Data-Types"><span class="toc-number">4.1.3.</span> <span class="toc-text">Data Types</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Control-Flow"><span class="toc-number">4.1.4.</span> <span class="toc-text">Control Flow</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Conditional-Exits"><span class="toc-number">4.1.4.1.</span> <span class="toc-text">Conditional Exits</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SimProcedure-Continuations"><span class="toc-number">4.1.4.2.</span> <span class="toc-text">SimProcedure Continuations</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Global-Variables"><span class="toc-number">4.1.5.</span> <span class="toc-text">Global Variables</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Helping-out-static-analysis"><span class="toc-number">4.1.6.</span> <span class="toc-text">Helping out static analysis</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#User-Hooks"><span class="toc-number">4.1.7.</span> <span class="toc-text">User Hooks</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Hooking-Symbols"><span class="toc-number">4.1.8.</span> <span class="toc-text">Hooking Symbols</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Writing-State-Plugins"><span class="toc-number">4.2.</span> <span class="toc-text">Writing State Plugins</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#My-First-Plugin"><span class="toc-number">4.2.1.</span> <span class="toc-text">My First Plugin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Where%E2%80%99s-the-state"><span class="toc-number">4.2.2.</span> <span class="toc-text">Where’s the state</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Merging"><span class="toc-number">4.2.3.</span> <span class="toc-text">Merging</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Common-Ancestor"><span class="toc-number">4.2.3.1.</span> <span class="toc-text">Common Ancestor</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Widening"><span class="toc-number">4.2.4.</span> <span class="toc-text">Widening</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Serialization"><span class="toc-number">4.2.5.</span> <span class="toc-text">Serialization</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Plugins-all-the-way-down"><span class="toc-number">4.2.6.</span> <span class="toc-text">Plugins all the way down</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Setting-Defaults"><span class="toc-number">4.2.7.</span> <span class="toc-text">Setting Defaults</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Extending-the-Environment-Model"><span class="toc-number">4.3.</span> <span class="toc-text">Extending the Environment Model</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Setup"><span class="toc-number">4.3.1.</span> <span class="toc-text">Setup</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dynamic-library-functions-import-dependencies"><span class="toc-number">4.3.2.</span> <span class="toc-text">Dynamic library functions - import dependencies</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Case-1-in-tree-development-SimLibraries-and-catalogues"><span class="toc-number">4.3.2.1.</span> <span class="toc-text">Case 1, in-tree development: SimLibraries and catalogues</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Case-2-out-of-tree-development-tight-interation"><span class="toc-number">4.3.2.2.</span> <span class="toc-text">Case 2, out-of-tree development, tight interation</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Case-3-out-of-tree-development-loose-integration"><span class="toc-number">4.3.2.3.</span> <span class="toc-text">Case 3, out-of-tree development, loose integration</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Syscalls"><span class="toc-number">4.3.3.</span> <span class="toc-text">Syscalls</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Case-1-in-tree-development"><span class="toc-number">4.3.3.1.</span> <span class="toc-text">Case 1, in-tree development</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Case-2-out-of-tree-development-tight-integration"><span class="toc-number">4.3.3.2.</span> <span class="toc-text">Case 2, out-of-tree development, tight integration</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Case-3-out-of-tree-development-loose-integration-1"><span class="toc-number">4.3.3.3.</span> <span class="toc-text">Case 3,  out-of-tree development, loose integration</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SimData"><span class="toc-number">4.3.4.</span> <span class="toc-text">SimData</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Writing-Analyses"><span class="toc-number">4.4.</span> <span class="toc-text">Writing Analyses</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Working-with-projects"><span class="toc-number">4.4.1.</span> <span class="toc-text">Working with  projects</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Analysis-Resilience"><span class="toc-number">4.4.2.</span> <span class="toc-text">Analysis Resilience</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Scripting-angr-management"><span class="toc-number">4.5.</span> <span class="toc-text">Scripting angr management</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#The-console-and-the-basic-objects"><span class="toc-number">4.5.1.</span> <span class="toc-text">The console, and the basic objects</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#The-ObjectContainer"><span class="toc-number">4.5.2.</span> <span class="toc-text">The ObjectContainer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Manipulating-UI-elements"><span class="toc-number">4.5.3.</span> <span class="toc-text">Manipulating UI elements</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writing-plugins"><span class="toc-number">4.5.4.</span> <span class="toc-text">Writing plugins</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Writing-tests"><span class="toc-number">4.5.5.</span> <span class="toc-text">Writing tests</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API"><span class="toc-number">5.</span> <span class="toc-text">API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#angr-Analysis-and-Coordination"><span class="toc-number">5.1.</span> <span class="toc-text">angr - Analysis and Coordination</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Project"><span class="toc-number">5.1.1.</span> <span class="toc-text">Project</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ailment-angr-Intermediate-Language"><span class="toc-number">5.2.</span> <span class="toc-text">ailment - angr Intermediate Language</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#claripy-Solver-Engine"><span class="toc-number">5.3.</span> <span class="toc-text">claripy - Solver Engine</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cle-Binary-Loader"><span class="toc-number">5.4.</span> <span class="toc-text">cle - Binary Loader</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Loading-Interface"><span class="toc-number">5.4.0.1.</span> <span class="toc-text">Loading Interface</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pyvex-Binary-Translator"><span class="toc-number">5.4.1.</span> <span class="toc-text">pyvex - Binary Translator</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#archinfo-Arch-Information-Repository"><span class="toc-number">5.4.2.</span> <span class="toc-text">archinfo - Arch Information Repository</span></a></li></ol></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://s3.ax1x.com/2021/02/03/yKqJde.jpg"></div><div class="author-info__name text-center">Phenix</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">22</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">15</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">9</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Stay hungry, Stay foolish</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">angr学习</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2022-08-15</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/SymbolicExecution/">SymbolicExecution</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h2 id="Core-Concepts"><a href="#Core-Concepts" class="headerlink" title="Core Concepts"></a>Core Concepts</h2><h3 id="Top-Level-Interfaces"><a href="#Top-Level-Interfaces" class="headerlink" title="Top Level Interfaces"></a>Top Level Interfaces</h3><p>将一个二进制文件加载进项目：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line">p=angr.Project(<span class="string">&#x27;/bin/aa&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="Basic-properties"><a href="#Basic-properties" class="headerlink" title="Basic properties"></a>Basic properties</h4><p>一些项目的基本属性：它的CPU架构、文件名和入口点的地址。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p.arch   <span class="comment"># arch是archinfo.Arch对象实例，适用于编译程序的任何架构</span></span><br><span class="line">p.entry  <span class="comment"># 二进制入口地址</span></span><br><span class="line">p.filename  <span class="comment"># 二进制文件绝对文件名</span></span><br></pre></td></tr></table></figure>
+<h4 id="The-loader"><a href="#The-loader" class="headerlink" title="The loader"></a>The loader</h4><p>模块CLE处理二进制文件到它在虚拟地址空间中的表示，CLE的结果称为加载程序，在.loader属性中可用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">p.loader  <span class="comment"># 加载器</span></span><br><span class="line">p.loader.shared_objects  <span class="comment"># 将加载的库名称映射到表示它们的对象的字典。</span></span><br><span class="line">p.loader.min_addr  <span class="comment"># 作为任何加载对象的一部分加载的最小地址</span></span><br><span class="line">p.loader.max_addr  <span class="comment"># 作为任何加载对象的一部分加载的最大地址</span></span><br><span class="line">p.loader.main_object  <span class="comment"># 表示主二进制文件的对象</span></span><br><span class="line">p.loader.main_object.execstack  <span class="comment"># 实例查询：此二进制文件是否有可执行堆栈</span></span><br><span class="line">p.loader.main_object.pic  <span class="comment"># 实例查询：二进制地址是否独立</span></span><br></pre></td></tr></table></figure>
+<h4 id="The-factory"><a href="#The-factory" class="headerlink" title="The factory"></a>The factory</h4><p>angr中有很多类，大部分需要一个项目来实例化，project.factory有几个方便的构造函数，用于想要经常使用的常见对象。</p>
+<h5 id="Blocks"><a href="#Blocks" class="headerlink" title="Blocks"></a>Blocks</h5><p>project.factory.block()用于从给定地址提取基本代码块。angr以基本快为单位分析代码，会得到一个Block对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">block = p.factory.block(p.entry)</span><br><span class="line"><span class="built_in">print</span>(block)  <span class="comment"># 从程序的入口点取出一段代码</span></span><br><span class="line"><span class="built_in">print</span>(block.pp)  <span class="comment"># 打印输出反汇编</span></span><br><span class="line"><span class="built_in">print</span>(block.instructions)  <span class="comment"># 有多少条指令</span></span><br><span class="line"><span class="built_in">print</span>(block.instruction_addrs)  <span class="comment"># 指令地址</span></span><br><span class="line"><span class="built_in">print</span>(block.capstone)  <span class="comment"># capstone反汇编</span></span><br><span class="line"><span class="built_in">print</span>(block.ves)  <span class="comment"># VEX IRSB</span></span><br></pre></td></tr></table></figure>
+<h5 id="States"><a href="#States" class="headerlink" title="States"></a>States</h5><p>Project对象仅代表程序的“初始化图像”，当使用angr执行时，使用表示模拟程序状态的特定对象-SimState</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">state=p.factory.entry_state</span><br></pre></td></tr></table></figure>
+<p>SimState包含程序的内存、寄存器、文件系统数据，任何可以通过执行更改的“实时数据”在state都有存放，通过state.regs和state.mem可以访问state的寄存器和内存。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(state.regs.eip)</span><br><span class="line"><span class="built_in">print</span>(state.regs.ebp)</span><br><span class="line"><span class="built_in">print</span>(state.mem[proj.entry].<span class="built_in">int</span>.resolved)  </span><br></pre></td></tr></table></figure>
+<p>返回不是 Python 整数，是位向量。 Python 整数的语义与 CPU 上的单词不同，可以将其视为由一系列位表示的整数，以表示 angr 中的 CPU 数据。 每个位向量都有一个 .length 属性来描述它的位宽。可以把Python整数转换为位向量并再次转换回来。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bv=state.solver.BVV(<span class="number">0x1234</span>,<span class="number">32</span>)  <span class="comment"># 创建一个值为0x1234的32位宽的位向量</span></span><br><span class="line"><span class="built_in">print</span>(state.solver.<span class="built_in">eval</span>(bv))  <span class="comment"># 转换为python int</span></span><br></pre></td></tr></table></figure>
+<p>可以将位向量存储回寄存器和内存，或直接存储python整数并将其转换为适当大小的位向量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state.regs.esi = state.solver.BVV(<span class="number">3</span>,<span class="number">64</span>)</span><br><span class="line"><span class="built_in">print</span>(state.regs.esi)</span><br><span class="line">state.mem[<span class="number">0x1000</span>].long = <span class="number">4</span></span><br><span class="line"><span class="built_in">print</span>(state.mem[<span class="number">0x1000</span>].long.resolved)</span><br></pre></td></tr></table></figure>
+<p>mem接口：</p>
+<ul>
+<li>使用array[index]表示法指定地址</li>
+<li>使用.\<type\>指定应该将内存解释为\<type\>（常用值：char、short、int、long、size_t、uint8_t、uint16_t…）</li>
+<li>或者可以：<ul>
+<li>为它存储一个值、一个位向量、或一个Python int</li>
+<li>使用.resolved将值作为位向量获取</li>
+<li>使用.concrete将值作为Python int获取</li>
+</ul>
+</li>
+</ul>
+<h5 id="Simulation-Managers"><a href="#Simulation-Managers" class="headerlink" title="Simulation Managers"></a>Simulation Managers</h5><p>Simulation Manager是angr用来执行、模拟的主要接口。首先，创建将要使用的模拟管理器构造函数可以采用状态或状态列表。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">simgr = p.factory.simulation_manager(state)</span><br><span class="line"><span class="built_in">print</span>(simgr)</span><br><span class="line"><span class="built_in">print</span>(simgr.active)</span><br></pre></td></tr></table></figure>
+<p>一个模拟管理器可以包含多个状态，默认为stash，传入active状态进行初始化，可以查看simr.active[0]来进一步了解状态。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">simgr.step()</span><br></pre></td></tr></table></figure>
+<p>在执行了一个基本快的符号执行后，可以查看活动存储，注意到已经更新，而且没有修改原始状态，SimState对象在执行时被视为不可变，可以以单个状态用作多轮执行的基础。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(simgr.active)</span><br><span class="line"><span class="built_in">print</span>(simgr.active[<span class="number">0</span>].regs.eip)</span><br><span class="line"><span class="built_in">print</span>(state.regs.eip)</span><br></pre></td></tr></table></figure>
+<h4 id="Analyses"><a href="#Analyses" class="headerlink" title="Analyses"></a>Analyses</h4><p>angr预先打包了几个内置分析，可以使用它们从程序中提取信息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p.analyses.  <span class="comment"># 在ipython中可Tab补全</span></span><br></pre></td></tr></table></figure>
+<h3 id="Loading-a-Binary"><a href="#Loading-a-Binary" class="headerlink" title="Loading a Binary"></a>Loading a Binary</h3><p>angr的二进制加载组件CLE（CLE Loads Everything）负责获取二进制文件（以及它所依赖的任何库）并以易于使用方式呈现给angr的其余部分。</p>
+<h4 id="The-Loader"><a href="#The-Loader" class="headerlink" title="The Loader"></a>The Loader</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr,monkeyhex</span><br><span class="line">proj = angr.Project(<span class="string">&#x27;/aa/bb&#x27;</span>)</span><br><span class="line">proj.loader</span><br></pre></td></tr></table></figure>
+<h5 id="Loaded-Objects"><a href="#Loaded-Objects" class="headerlink" title="Loaded Objects"></a>Loaded Objects</h5><p>CLE加载器（cle.Loader）代表加载的二进制对象的完整集合，加载并映射到单个内存空间。每个二进制对象都由可以处理其文件类型（cle.Backend的子类）的加载器后端加载。例如：cle.ELF用于加载ELF二进制文件。</p>
+<p>内存中也有与任何加载的二进制文件不对应的对象，例如：用于提供线程本地存储支持的对象，以及用于提供未解析符号的externs对象。</p>
+<p>可以使用loader.all_objects获取CLE加载的对象的完整列表，以及几个更有针对性的分类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">proj.loader.all_objects</span><br><span class="line">proj.loader.main_objects</span><br><span class="line">proj.loader.shared_objects</span><br><span class="line">proj.loader.all_elf_objects</span><br><span class="line">proj.loader.extern_objects</span><br><span class="line">proj.loader.kernel_objects</span><br><span class="line">proj.loader.find_object_containing(<span class="number">0x400000</span>)</span><br></pre></td></tr></table></figure>
+<p>可以直接从对象中提取元素：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">obj = proj.loader.main_objects</span><br><span class="line"><span class="comment"># 对象</span></span><br><span class="line">obj.entry  </span><br><span class="line">obj.min_addr,obj.max_addr</span><br><span class="line"><span class="comment"># 检索ELF的segments和sections</span></span><br><span class="line">obj.segments</span><br><span class="line">obj.sections</span><br><span class="line"><span class="comment"># 可以通过包含的地址获取单个segment或section</span></span><br><span class="line">obj.find_segment_containing(obj.entry)</span><br><span class="line">obj.find_section_containing(obj.entry)</span><br><span class="line"><span class="comment"># 获取符号的PLT存根地址</span></span><br><span class="line">addr = obj.plt[<span class="string">&#x27;strcmp&#x27;</span>]</span><br><span class="line"><span class="comment"># 显示对象的预链接基址和它实际被CLE映射到内存中的位置</span></span><br><span class="line">obj.linked_base</span><br><span class="line">obj.mapped_base</span><br></pre></td></tr></table></figure>
+<h5 id="Symbols-and-Relocations"><a href="#Symbols-and-Relocations" class="headerlink" title="Symbols and Relocations"></a>Symbols and Relocations</h5><p>可以在使用CLE时使用符号，符号有效地将名称映射到地址。从CLE获取符号的最简单方法是使用loader.find_symbol，它接受名称或地址并返回Symbol对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">strcmp = proj.loader.find_symbol(<span class="string">&#x27;strcmp&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>符号上最有用的属性是它的名称、所有者和地址，但符号的“地址”可能不明确，Symbol对象具有三种报告其地址的方式：</p>
+<ul>
+<li>.rebased_addr：是在全局地址空间中的地址</li>
+<li>.linked_addr：是相对于二进制文件的预链接基址的地址</li>
+<li>.relative_addr：是相对于对象库的地址</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">strcmp.name</span><br><span class="line">strcmp.owner</span><br><span class="line">strcmp.rebased_addr</span><br><span class="line">strcmp.linked_addr</span><br><span class="line">strcmp.relative_addr</span><br></pre></td></tr></table></figure>
+<p>除了提供调试信息之外，符号还支持动态链接的概念。libc提供strcmp符号作为导出，主二进制文件依赖于此。如果我们让 CLE 直接从主对象中给我们一个 strcmp 符号，它会告诉我们这是一个导入符号。 导入符号没有与之关联的有意义的地址，但它们确实提供了对用于解析它们的符号的引用，如 .resolvedby。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">strcmp.is_export</span><br><span class="line">strcmp.is_import</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对于Loader可以通过find_symbol执行搜索操作查找符号</span></span><br><span class="line"><span class="comment"># 对于当个对象要通过get_symbol，因为只能有一个具有给定名称的符号</span></span><br><span class="line">main_strcmp = proj.loader.main_object.get_symbol(<span class="string">&#x27;strcmp&#x27;</span>)</span><br><span class="line">main_strcmp</span><br><span class="line">main_strcmp.is_export</span><br><span class="line">main_strcmp.is_import</span><br><span class="line">main_strcmp.resolvedby</span><br></pre></td></tr></table></figure>
+<p>导入和导出之间的链接应在内存中注册的特定方法由一个relocation处理，“当 [import] 与导出符号匹配时，请将导出地址写入 [location]，格式为 [format]。” 我们可以看到一个对象（作为 Relocation 实例）的完整重定位列表作为 obj.relocs，或者只是从符号名称到重定位的映射作为 obj.imports。 </p>
+<p>relocation对应的导入符号可以作为.symbol访问，relocation将写入的地址可通过可用于Symbol的任何地址标识符访问，也可以使用.owner获取对请求relocation的对象的引用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proj.loader.shared_objects[<span class="string">&#x27;libc.so.6&#x27;</span>].imports</span><br></pre></td></tr></table></figure>
+<p>如果导入无法解析为任何导出，CLE将自动更新externs对象(loader.extern_obj)以声明它提供符号作为导出。</p>
+<h4 id="Loading-Options"><a href="#Loading-Options" class="headerlink" title="Loading Options"></a>Loading Options</h4><p>如果使用angr.Project加载某些内容并且想要将选项传递给Project隐式创建的cle.Loader实例，则可以直接将关键字参数传递给Project构造函数，它将被传递给CLE。</p>
+<h5 id="Basic-Options"><a href="#Basic-Options" class="headerlink" title="Basic Options"></a>Basic Options</h5><ul>
+<li>auto_load_libs：启用或禁用CLE自动解析共享库依赖项的尝试，默认启用。</li>
+<li>except_missing_libs：如果设置为true，则每当二进制文件具有无法解析的共享库依赖项时，都会引发异常。</li>
+</ul>
+<h5 id="Per-Binary-Options"><a href="#Per-Binary-Options" class="headerlink" title="Per-Binary Options"></a>Per-Binary Options</h5><ul>
+<li>main_opts：从选项名称到选项值的映射</li>
+<li>lib_opts：从库名称到将选项名称映射到选项值的字典的映射</li>
+</ul>
+<p>常见选项：</p>
+<ul>
+<li>backend：使用哪个后端作为类或名称</li>
+<li>base_addr：要使用的基地址</li>
+<li>entry_point：使用的入口点</li>
+<li>arch：要使用的架构名称</li>
+</ul>
+<h5 id="Backend"><a href="#Backend" class="headerlink" title="Backend"></a>Backend</h5><p>CLE目前有用于静态加载ELF、PE、CGC、Mach-O和ELF核心转储文件以及将文件加载到平滑地址空间的后端。CLE将自动检测在大多数情况下使用的正确后端。</p>
+<p>可以通过在其选项字典中强制CLE为对象使用特定的后端。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>后端名称</th>
+<th>描述</th>
+<th>是否需要arch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>elf</td>
+<td>基于PyELFTools的ELF文件静态加载器</td>
+<td>否</td>
+</tr>
+<tr>
+<td>pe</td>
+<td>基于PEFile的PE文件静态加载器</td>
+<td>否</td>
+</tr>
+<tr>
+<td>mach-o</td>
+<td>Mach-O文件的静态加载器，不支持动态链接或变基</td>
+<td>否</td>
+</tr>
+<tr>
+<td>cgc</td>
+<td>Cyber Grand Challenge二进制文件的静态加载器</td>
+<td>否</td>
+</tr>
+<tr>
+<td>backedcgc</td>
+<td>CGC二进制文件的静态加载器，允许指定内存和注册</td>
+<td>否</td>
+</tr>
+<tr>
+<td>elfcore</td>
+<td>用于ELF核心转储的静态加载程序</td>
+<td>否</td>
+</tr>
+<tr>
+<td>blob</td>
+<td>将文件作为低反差图像加载到内存中</td>
+<td>是</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="Symbolic-Function-Summaries"><a href="#Symbolic-Function-Summaries" class="headerlink" title="Symbolic Function Summaries"></a>Symbolic Function Summaries</h4><p>默认情况下，Project尝试使用称为SimProcedures的符号摘要替换对库函数的外部调用——实际上只是模仿库函数对状态的影响的Python函数。内置过程在angr.SIM_PROCEDURES字典中可用，是两极的，首先键入包名称（libc、posix、win32、stubs），然后键入库函数的名称。</p>
+<p>当给定函数没有这样的摘要的：</p>
+<ul>
+<li>如果auto_load_libs为True，则执行真正的库函数。</li>
+<li>如果auto_load_libs为False，则外部函数未解析，Project会将它们解析为名为ReturnUnconstrained的通用“存根”。每次调用它时都会返回一个唯一的无约束符号值。</li>
+<li>如果use_sim_procedures（这是angr.Project的参数，而不是cle.Loader的参数）为Flase，则只有extern对象提供的符号将被替换为SimProcedures，它们将被替换为存根ReturnUnconstrained，它只返回一个符号值。</li>
+<li>可以使用angr.Project的参数：exclude_sim_procedures_list和exclude_sim_Procedures_func指定要排除的特定符号，以免被SimProcedures替换。</li>
+<li>查看angr.Project._register_object的代码以了解确切的算法。</li>
+</ul>
+<h5 id="Hooking"><a href="#Hooking" class="headerlink" title="Hooking"></a>Hooking</h5><p>angr将库代码替换为Python总结的机制称为hooking。执行模拟时，angr在每一步都会检查当前地址是否已被hook，如果是，则运行hook而不是该地址处的二进制代码。API为proj.hook(addr,hook)，其中hook是一个SimProcedure实例。可以使用.is_hooked、.unhook和.hooked_by管理项目的hook。</p>
+<p>有一个用于hook地址的替代API，通过使用proj.hook(addr)作为函数装饰器，可以指定自己的现成函数用作hook。可以选择指定一个长度关键字参数，以使执行在hook完成后向前跳转一些字节。</p>
+<p>此外，可以使用proj.hook_symbol(name,hook)，提供符号名称作为第一个参数来hook符号所在的地址。</p>
+<h3 id="Solver-Engine"><a href="#Solver-Engine" class="headerlink" title="Solver Engine"></a>Solver Engine</h3><p>angr的强大之处不在于它是一个模拟器，而是来自于能够使用符号变量来执行。使用该变量执行算术运算将产生一颗操作树（抽象语法树AST）。AST可以转换为SMT求解器的约束，解决对于给定操作序列的输出，找到相应输入。</p>
+<h4 id="Working-with-Bitvectors"><a href="#Working-with-Bitvectors" class="headerlink" title="Working with Bitvectors"></a>Working with Bitvectors</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr, monkeyhex</span><br><span class="line">proj = angr.Project(<span class="string">&#x27;/bin/true&#x27;</span>)</span><br><span class="line">state = proj.factory.entry_state()</span><br></pre></td></tr></table></figure>
+<p>位向量只是一个位序列，用有界整数的语义进行算术解释。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 具有具体值1和100的64位位向量</span></span><br><span class="line">one = state.solver.BVV(<span class="number">1</span>,<span class="number">64</span>)</span><br><span class="line">one_hundred = state.solver.BVV(<span class="number">100</span>,<span class="number">64</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个具体值为9和27位位向量</span></span><br><span class="line">weird_nine = state.solver.BVV(<span class="number">9</span>,<span class="number">27</span>)</span><br></pre></td></tr></table></figure>
+<p>可以拥有任何位序列并将它们称为位向量：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">one + one_hundred</span><br><span class="line">one_hundred + <span class="number">0x100</span></span><br><span class="line">one_hundred - one*<span class="number">200</span></span><br><span class="line">weird_nine.zero_extend(<span class="number">64</span>-<span class="number">27</span>)</span><br></pre></td></tr></table></figure>
+<p>zero_extend将用给定数量的零位填充左侧的位向量。sign_extend用最高位的副本填充，在二进制补码有符号整数语义下保留位向量的值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = state.solver.BVS(<span class="string">&quot;x&quot;</span>,<span class="number">64</span>)</span><br><span class="line">y = state.solver.BVS(<span class="string">&quot;y&quot;</span>,<span class="number">64</span>)</span><br></pre></td></tr></table></figure>
+<p>x和y是符号变量，可以对它们进行任意数量的算术运算，但不会得到一个数字，而是得到一个AST。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x + one</span><br><span class="line">(x + one) / <span class="number">2</span></span><br><span class="line">x - y</span><br></pre></td></tr></table></figure>
+<p>任何位向量都是一颗操作树。</p>
+<p>每个AST都有一个.op和一个.args。op是一个字符串，命名正在执行的操作，而args是操作作为输入的值。除非操作是BVV或BVS，否则args是所有其他AST，树最终以BVV或BVS终止。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tree = (x + <span class="number">1</span>) / (y + <span class="number">2</span>)</span><br><span class="line">tree.op</span><br><span class="line">tree.args</span><br><span class="line">tree.args[<span class="number">0</span>].op</span><br><span class="line">tree.args[<span class="number">0</span>].args</span><br><span class="line">tree.args[<span class="number">0</span>].args[<span class="number">1</span>].op</span><br><span class="line">tree.args[<span class="number">0</span>].args[<span class="number">1</span>].args</span><br></pre></td></tr></table></figure>
+<p>位向量指代任何其最高操作产生位向量的AST。可以通过AST表示其他数据类型，包括浮点数和布尔值。</p>
+<h4 id="Symbolic-Constraints"><a href="#Symbolic-Constraints" class="headerlink" title="Symbolic Constraints"></a>Symbolic Constraints</h4><p>在任何两个类似类型的AST之间执行比较操作将产生另一个AST—不是位向量，而是一个符号布尔值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">x == <span class="number">1</span></span><br><span class="line">x == one</span><br><span class="line">x &gt; <span class="number">2</span></span><br><span class="line">x + y == one_hundred + <span class="number">5</span></span><br><span class="line">one_hundred &gt; <span class="number">5</span></span><br><span class="line">one_hundred &gt; -<span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>不应该在if或while语句的条件中使用变量之间的比较，应该使用solver.is_true和solver.is_false，在不执行约束求解的情况下测试具体的真实性/虚假性。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yes = one == <span class="number">1</span></span><br><span class="line">no = one == <span class="number">2</span></span><br><span class="line">maybe = x == y</span><br><span class="line">state.solver.is_true(yes)</span><br><span class="line">state.solver.is_false(yes)</span><br><span class="line">state.solver.is_true(no)</span><br><span class="line">state.solver.is_false(no)</span><br><span class="line">state.solver.is_true(maybe)</span><br><span class="line">state.solver.is_false(maybe)</span><br></pre></td></tr></table></figure>
+<h4 id="Constraint-Solving"><a href="#Constraint-Solving" class="headerlink" title="Constraint Solving"></a>Constraint Solving</h4><p>可以将任何符号布尔值视为关于符号变量有效值的断言，将其作为约束添加到状态。可以通过要求对符号表达式求值来查询符号变量的有效值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state.solver.add(x &gt; y)</span><br><span class="line">state.solver.add(y &gt; <span class="number">2</span>)</span><br><span class="line">state.solver.add(<span class="number">10</span> &gt; x)</span><br><span class="line">state.solver.<span class="built_in">eval</span>(x)</span><br></pre></td></tr></table></figure>
+<p>通过将这些约束添加到状态中，强制约束求解器将它们视为必须满足其返回的任何值的断言。如果添加冲突或矛盾的约束使得没有可以分配给变量的值来满足约束，则状态变得不可满足或不满足，并且针对它的查询将引发异常。 可以使用 state.satisfiable() 检查状态的可满足性。</p>
+<p>可以计算更复杂的表达式，而不仅仅是单个变量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">state.solver.add(x - y &gt;= <span class="number">4</span>)</span><br><span class="line">state.solver.add(y &gt; <span class="number">0</span>)</span><br><span class="line">state.solver.<span class="built_in">eval</span>(x)</span><br><span class="line">state.solver.<span class="built_in">eval</span>(y)</span><br><span class="line">state.solver.<span class="built_in">eval</span>(x + y)</span><br></pre></td></tr></table></figure>
+<h4 id="Floating-point-numbers"><a href="#Floating-point-numbers" class="headerlink" title="Floating point numbers"></a>Floating point numbers</h4><p>z3支持IEEE754浮点数理论，所以angr也可以使用。区别在于浮点数不是宽度而是排序，可以使用FPV和FPS创建浮点符号和值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">state = proj.factory.entry_state()</span><br><span class="line">a = state.solver.FPV(<span class="number">3.2</span>, state.solver.fp.FSORT_DOUBLE)</span><br><span class="line">b = state.solver.FPS(<span class="string">&#x27;b&#x27;</span>, state.solver.fp.FSORT_DOUBLE)</span><br><span class="line"></span><br><span class="line">a + b</span><br><span class="line">a + <span class="number">4.4</span></span><br><span class="line">b + <span class="number">2</span> &lt; <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>大多数操作实际上都有第三个参数，当使用二元运算符时隐式添加 - 舍入模式。 IEEE754 规范支持多种舍入模式（舍入到最近、舍入到零、舍入到正等），因此 z3 必须支持它们。 如果要指定运算的舍入模式，请显式使用 fp 运算（例如solver.fpAdd），并将舍入模式（solver.fp.RM_* 之一）作为第一个参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state.solver.add(b + <span class="number">2</span> &lt; <span class="number">0</span>)</span><br><span class="line">state.solver.add(b + <span class="number">2</span> &gt; -<span class="number">1</span>)</span><br><span class="line">state.solver.<span class="built_in">eval</span>(b)</span><br><span class="line">-<span class="number">2.4999999999999996</span></span><br></pre></td></tr></table></figure>
+<p>有时需要能够直接将浮点表示为位向量，可以使用raw_to_bv和raw_to_fp方法将位向量解释为浮点数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a.raw_to_bv()</span><br><span class="line">b.raw_to_bv()</span><br><span class="line"></span><br><span class="line">state.solver.BVV(<span class="number">0</span>, <span class="number">64</span>).raw_to_fp()</span><br><span class="line">state.solver.BVS(<span class="string">&#x27;x&#x27;</span>, <span class="number">64</span>).raw_to_fp()</span><br></pre></td></tr></table></figure>
+<p>这些转换保留了位模式，就好像将浮点指针转换为 int 指针，反之亦然。 但是如果想尽可能地保留该值，就将浮点数转换为 int（反之亦然），可以使用一组不同的方法，val_to_fp 和 val_to_bv。 由于浮点数的浮点特性，这些方法必须将目标值的大小或排序作为参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a</span><br><span class="line">a.val_to_bv(<span class="number">12</span>)</span><br><span class="line">a.val_to_bv(<span class="number">12</span>).val_to_fp(state.solver.fp.FSORT_FLOAT)</span><br></pre></td></tr></table></figure>
+<p>这些方法还可以采用有符号参数，指定源或目标位向量的符号性。</p>
+<h4 id="More-Solving-Methods"><a href="#More-Solving-Methods" class="headerlink" title="More Solving Methods"></a>More Solving Methods</h4><ul>
+<li>solver.eval(expression)：将提供给定表达式的一种可能解决方案。</li>
+<li>solver.eval_one(expression)：将提供给定表达式的解决方案，或者如果可能有多个解决方案则抛出错误。</li>
+<li>solver.eval_upto(expression, n)：将提供给定表达式的n个解决方案，如果可能少于n，则返回少于n。</li>
+<li>solver.eval_atleast(expression, n)：将提供给定表达式的n个解决方案，如果可能少于n个则抛出错误。</li>
+<li>solver.eval_exact(expression, n)：将提供给定表达式的n个解决方案，如果多于或少于可能，则抛出错误。</li>
+<li>solver.min(expression)：将提供给定表达式的最小可能解决方案。</li>
+<li>solver.max(expression)：将提供给定表达式的最大可能解决方案。</li>
+</ul>
+<p>所有这些方法可以采用以下关键字参数：</p>
+<ul>
+<li>extra_constraints：可以作为约束元组传递。这些约束将被考虑到此评估中，但不会添加到状态中</li>
+<li>cast_to：可以传递一个数据类型来转换结果，目前这只能是int和bytes，这将导致该方法返回底层数据的相应表示。比如：state.solver.eval(state.solver.BVV(0x41424344, 32), cast_to=bytes) 将转换为b’ABCD’。</li>
+</ul>
+<h3 id="Program-State"><a href="#Program-State" class="headerlink" title="Program State"></a>Program State</h3><p>了解状态对象的结构以及如何以各种有用的方式与之交互。</p>
+<h4 id="Review-Reading-and-writing-memory-and-registers"><a href="#Review-Reading-and-writing-memory-and-registers" class="headerlink" title="Review: Reading and writing memory and registers"></a>Review: Reading and writing memory and registers</h4><p>.state.regs通过带有每个寄存器名称的属性提供对寄存器的读写访问，.state.mem提供对内存的类型化读写访问，并使用索引访问表示法指定地址，后跟属性访问，以指定要将内存解释为的类型。</p>
+<p>从状态中复制和对数据执行操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr,claripy</span><br><span class="line">proj = angr.Project(<span class="string">&#x27;/bin/true&#x27;</span>)</span><br><span class="line">state = proj.factory.entry_state()</span><br><span class="line"></span><br><span class="line">state.regs.rbp = state.regs.rsp</span><br><span class="line"></span><br><span class="line">state.mem[<span class="number">0x1000</span>].uint64_t = state.regs.rdx</span><br><span class="line"></span><br><span class="line">state.regs.rbp = state.mem[state.regs.rbp].uint64_t.resolved</span><br><span class="line"></span><br><span class="line">state.regs.rax += state.mem[state.regs.rsp + <span class="number">8</span>].uint64_t.resolved</span><br></pre></td></tr></table></figure>
+<h4 id="Basic-Execution"><a href="#Basic-Execution" class="headerlink" title="Basic Execution"></a>Basic Execution</h4><p>使用state.step()接口可以演示符号执行的工作原理，此方法将执行一个符号执行步骤并返回一个名为SimSuccessors的对象。与正常的仿真不同，符号执行可以产生多个可以按多种方式分类的后续状态。对象的.successors属性是一个包含给定步骤的所有“正常”后继者的列表。</p>
+<p>angr 的符号执行过程只是将单个指令的操作编译到程序中并执行它们以改变 SimState。 当遇到像 if (x &gt; 4) 这样的代码行时，如果 x 是符号位向量，angr将执行 x &gt; 4 的比较，结果将是 <Bool x_32_1 > 4&gt;。</p>
+<p>生成两个完全独立的后继状态——一个模拟条件为真的情况和模拟条件为假的情况。 在第一个状态中添加 x &gt; 4 作为约束，在第二个状态中添加 !(x &gt; 4) 作为约束。 每当使用这些后继状态中的任何一个执行约束求解时，状态上的条件确保可以获得的任何解决方案都是有效的输入，这将导致执行遵循给定状态所遵循的相同路径。</p>
+<p>以如下为例，源代码身份验证存在漏洞，任何用户都可以通过密码“SOSNEAKY”认证为管理员：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">proj = angr.Project(<span class="string">&#x27;examples/fauxware/fauxware&#x27;</span>)</span><br><span class="line">state = proj.factory.entry_state(stdin=angr.SimFile) </span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">     succ = state.step()</span><br><span class="line">     <span class="keyword">if</span> <span class="built_in">len</span>(succ.successors) == <span class="number">2</span>:</span><br><span class="line">         <span class="keyword">break</span></span><br><span class="line">     state = succ.successors[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">state1, state2 = succ.successors</span><br><span class="line">state1</span><br><span class="line">state2</span><br></pre></td></tr></table></figure>
+<p>模拟的程序从标准输入中获取数据，默认情况下angr将其视为无限的符号数据流。要执行约束求解并获得输入可以采用以满足约束的可能值，需要获取对stdin实际内容的引用。只需使用state.posix.stdin.load(0,state.posix.stdin.size)来检索表示到目前为止从标准输入读取的所有内容的位向量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">input_data = state1.posix.stdin.load(<span class="number">0</span>, state1.posix.stdin.size)</span><br><span class="line"></span><br><span class="line">state1.solver.<span class="built_in">eval</span>(input_data, cast_to=<span class="built_in">bytes</span>)</span><br><span class="line">state2.solver.<span class="built_in">eval</span>(input_data, cast_to=<span class="built_in">bytes</span>)</span><br></pre></td></tr></table></figure>
+<p>为了进入state1路径，必须将后门字符串“SOSNEAKY”作为密码。</p>
+<h4 id="State-Presets"><a href="#State-Presets" class="headerlink" title="State Presets"></a>State Presets</h4><p>每当处理一个状态时，都会使用project.factory.entry_state()创建它。这只是可用的几个状态构造函数之一：</p>
+<ul>
+<li><p>.blank_state()：构造一个“blank state”空白状态，其大部分数据未初始化。访问未初始化的数据时，将返回一个不受约束的符号值。</p>
+</li>
+<li><p>.entry_state()：构造一个准备在主二进制文件入口点执行的状态。</p>
+</li>
+<li><p>.full_init_state()：通过需要在主二进制入口点之前运行的任何初始化程序构造一个准备执行的状态。例如，共享库构造函数或预初始化器。完成这些后，它将跳转到入口点。</p>
+</li>
+<li><p>.call_state()：构造一个准备好执行给定函数的状态。</p>
+</li>
+</ul>
+<p>可以通过这些构造函数的几个参数自定义状态：</p>
+<ul>
+<li>所有这些构造函数都可以使用addr参数来指定开始的确切地址。</li>
+<li>如果在可以接受命令行参数或环境的环境中执行，则可以通过 args 将参数列表和通过 env 的环境变量字典传递到 entry_state 和 full_init_state。 这些结构中的值可以是字符串或位向量，并将被序列化为状态作为模拟执行的参数和环境。 默认 args 是一个空列表，因此如果正在分析的程序希望找到至少一个 argv[0]，应该始终提供它。</li>
+<li>如果想让 argc 是符号的，可以将一个符号位向量作为 argc 传递给 entry_state 和 full_init_state 构造函数。 但是要小心还应该在结果状态中添加一个约束，即 argc 值不能大于传递给 args 的 args 数量。</li>
+<li>要使用调用状态，应该使用 .call_state(addr, arg1, arg2, …) 调用它，其中 addr 是要调用的函数的地址，argN 是该函数的第 N 个参数，或者作为 Python 整数、字符串、数组或位向量。 如果想分配内存并实际传递指向对象的指针，则应将其包装在 PointerWrapper 中，即 angr.PointerWrapper(“point to me!”)。 </li>
+<li>要使用 call_state 指定用于函数的调用约定，可以将 SimCC 实例作为 cc 参数传递。</li>
+</ul>
+<h4 id="Low-level-interface-for-memory"><a href="#Low-level-interface-for-memory" class="headerlink" title="Low level interface for memory"></a>Low level interface for memory</h4><p>state.mem接口便于从内存中加载类型化数据。state.mem实际上只是一堆正确访问底层内存存储的逻辑，只是一个位向量数据的平面地址空间：state.memory。可以将state.memory直接与.load(addr,size)和.store(addr,val)方法一起使用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">s = proj.factory.blank_state()</span><br><span class="line">s.memory.store(<span class="number">0x4000</span>, s.solver.BVV(<span class="number">0x0123456789abcdef0123456789abcdef</span>, <span class="number">128</span>))</span><br><span class="line">s.memory.load(<span class="number">0x4004</span>, <span class="number">6</span>) <span class="comment"># 加载大小以字节为单位</span></span><br></pre></td></tr></table></figure>
+<p>数据以“大端”方式加载和存储，因为state.memory的主要目的是加载没有附加语义的存储数据条。如果想对加载或存储的数据执行字节交换，可以传递一个关键字参数endness，如果指定little-endian就会发生字节交换。endness是archinfo包中Endness枚举的成员之一，用于保存有关angr的CPU架构的声明性数据。此外，正在分析的程序的结束性可以在arch.memory_endness中找到，例如：state.arch.memory_endness。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> archinfo</span><br><span class="line">s.memory.load(<span class="number">0x4000</span>, <span class="number">4</span>, endness=archinfo.Endness.LE)</span><br></pre></td></tr></table></figure>
+<p>还有一个用于寄存器访问的低级接口state.registers，使用与state.memory完全相同的API。寄存器和偏移量之间的映射在archinfo.xml中定义。</p>
+<h4 id="State-Options"><a href="#State-Options" class="headerlink" title="State Options"></a>State Options</h4><p>可以对angr的内部进行很多小调整，这些调整会在某些情况下优化行为，这些调整通过状态选项控制的。</p>
+<p>在每个SimState对象上都有一组(state.options)的所有启用选项。每个选项（实际是只是一个字符串）以某种微小的方式控制angr执行引擎的行为。可以通过angr.options访问单个选项以添加到状态。各个选项以CAPITAL_LETTERS命名，也有常见分组以小写字母命名。</p>
+<p>通过任何构造函数创建SimState时，可以传递关键字参数add_options和remove_options。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启用惰性求解，该选项会导致尽可能不频繁地检查状态可满足性。</span></span><br><span class="line">s.options.add(angr.options.LAZY_SOLVES)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建启用惰性求解的新状态</span></span><br><span class="line">s = proj.factory.entry_state(add_options=&#123;angr.options.LAZY_SOLVES&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在未启用简化选项的情况下创建新状态</span></span><br><span class="line">s = proj.factory.entry_state(remove_options=angr.options.simplification)</span><br></pre></td></tr></table></figure>
+<h4 id="State-Plugins"><a href="#State-Plugins" class="headerlink" title="State Plugins"></a>State Plugins</h4><p>存储在SimState中的所有内容实际上都存储在附加到状态的插件中。几乎每个状态属性都是一个插件——memory、registers、mem、regs、solver等。</p>
+<p>例如，普通内存插件模拟平滑内存空间，但分析可以选择启用“abstract memory”插件，该插件使用替代数据类型的地址来模拟独立于地址的自由浮动内存映射，以提供 state.memory。 相反，插件可以降低代码复杂性：state.memory 和 state.registers 实际上是同一个插件的两个不同实例，因为寄存器也是用地址空间模拟的。</p>
+<h5 id="The-globals-plugin"><a href="#The-globals-plugin" class="headerlink" title="The globals plugin"></a>The globals plugin</h5><p>state.globals实现了标准额Python dict的接口，允许在状态上存储任意数据。</p>
+<h5 id="The-history-plugin"><a href="#The-history-plugin" class="headerlink" title="The history plugin"></a>The history plugin</h5><p>state.history 是一个非常重要的插件，用于存储有关状态在执行期间所采用路径的历史数据。 它实际上是几个历史节点的链表，每个节点代表一轮执行——可以用 state.history.parent.parent 等遍历这个列表。</p>
+<p>为了更方便地使用这种结构，历史记录还提供了几个有效的迭代器，用于某些值的历史记录。 通常，这些值存储为 history.recent_NAME，而对它们的迭代器只是 history.NAME。 例如，对于 state.history.bbl_addrs 中的 addr：print hex(addr) 将打印出二进制的基本块地址跟踪，而 state.history.recent_bbl_addrs 是在最近的步骤 state 中执行的基本块的列表。 history.parent.recent_bbl_addrs 是在上一步中执行的基本块的列表等。如果需要快速获取这些值的平面列表，可以访问 .hardcopy，例如 state.history.bbl_addrs.hardcopy。 基于索引的访问是在迭代器上实现的。</p>
+<p>存储在历史记录中的一些值的简要列表：</p>
+<ul>
+<li><p>history.descriptions：是对状态执行的每一轮执行的字符串描述列表。</p>
+</li>
+<li><p>history.bbl_addrs：是状态执行的基本快地址的列表。每轮执行可能不止一个，并且并非所有地址都对应于二进制代码，有些可能是SimProcedurs被hook的地址。</p>
+</li>
+<li><p>history.jumpkinds：是状态历史中每个控制流转换的处置列表，作为VEX枚举字符串。</p>
+</li>
+<li><p>history.jump_guards：是保护状态所遇到的每个分支的条件列表。</p>
+</li>
+<li><p>history.events：是执行期间发生的”有趣事件“的语义列表，例如符号跳转条件的存在、程序弹出消息或以退出代码终止的执行。</p>
+</li>
+<li><p>history.actions：通常为空，如果将angr.options.refs选项添加到状态，它将填充程序执行的所有内存、寄存器和临时值访问的日志。</p>
+</li>
+</ul>
+<h5 id="The-callstack-plugin"><a href="#The-callstack-plugin" class="headerlink" title="The callstack plugin"></a>The callstack plugin</h5><p>angr 将跟踪模拟程序的调用堆栈。 在每条调用指令上，都会在跟踪的调用堆栈的顶部添加一个帧，并且每当堆栈指针下降到调用最顶层帧的点以下时，就会弹出一个帧。 这允许 angr 稳健地存储当前模拟函数的本地数据。</p>
+<p>与history类似，调用堆栈也是节点的链表，但没有提供对节点内容的迭代器 - 相反，可以直接迭代 state.callstack 以获取每个活动帧的调用堆栈帧，在从最近到最旧的顺序。 如果只想要最顶层的框架，那就是 state.callstack。</p>
+<ul>
+<li><p>callstack.func_addr：是当前正在执行的函数的地址。</p>
+</li>
+<li><p>callstack.call_site_addr：是调用当前函数的基本块地址。</p>
+</li>
+<li><p>callstack.stack_ptr：是从当前函数开始的堆栈指针的值。</p>
+</li>
+<li><p>callstack.ret_addr：是当前函数返回时返回的位置。</p>
+</li>
+</ul>
+<h4 id="Copying-and-Merging"><a href="#Copying-and-Merging" class="headerlink" title="Copying and Merging"></a>Copying and Merging</h4><p>状态支持非常快速的副本，以便可以探索不同的可能性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">proj = angr.Project(<span class="string">&#x27;/bin/true&#x27;</span>)</span><br><span class="line">s = proj.factory.blank_state()</span><br><span class="line">s1 = s.copy()</span><br><span class="line">s2 = s.copy()</span><br><span class="line"></span><br><span class="line">s1.mem[<span class="number">0x1000</span>].uint32_t = <span class="number">0x41414141</span></span><br><span class="line">s2.mem[<span class="number">0x1000</span>].uint32_t = <span class="number">0x42424242</span></span><br></pre></td></tr></table></figure>
+<p>状态也可以合并在一起：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 合并将返回一个元组，第一个元素是合并状态</span><br><span class="line"># 第二个元素是描述状态标志的符号变量</span><br><span class="line"># 第三个元素是一个布尔值，描述是否进行了任何合并</span><br><span class="line">(s_merged, m, anything_merged) = s1.merge(s2)</span><br><span class="line"></span><br><span class="line"># this is now an expression that can resolve to &quot;AAAA&quot; *or* &quot;BBBB&quot;</span><br><span class="line">aaaa_or_bbbb = s_merged.mem[0x1000].uint32_t</span><br></pre></td></tr></table></figure>
+<h3 id="Simulation-Managers-1"><a href="#Simulation-Managers-1" class="headerlink" title="Simulation Managers"></a>Simulation Managers</h3><p>angr 中最重要的控制接口是 SimulationManager，它允许同时控制状态组的符号执行，应用搜索策略来探索程序的状态空间。 </p>
+<p>模拟管理器让您以一种巧妙的方式处理多个状态。 状态被组织成“存储区”，可以根据需要向前推进、过滤、合并和移动。 例如，以不同的速率步进两个不同的状态存储，然后将它们合并在一起。 大多数操作的默认存储是活动存储，当初始化一个新的模拟管理器时，状态会被放置在其中。</p>
+<h4 id="Stepping"><a href="#Stepping" class="headerlink" title="Stepping"></a>Stepping</h4><p>模拟管理器最基本的功能是将给定存储中的所有状态向前推进一个基本块。可以使用.step()执行此操作。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line">proj = angr.Project(<span class="string">&#x27;examples/fauxware/fauxware&#x27;</span>, auto_load_libs=<span class="literal">False</span>)</span><br><span class="line">state = proj.factory.entry_state()</span><br><span class="line">simgr = proj.factory.simgr(state)</span><br><span class="line">simgr.active</span><br><span class="line">simgr.step()</span><br><span class="line">simgr.active</span><br></pre></td></tr></table></figure>
+<p>当一个状态遇到符号分支条件时，两个后继状态都会出现在stash中，并且可以将它们同步前进。 当不关心非常仔细地控制分析并且只想单步执行直到没有任何剩余可执行时，可以使用.run() 方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 一直到第一个符号分支</span></span><br><span class="line"><span class="keyword">while</span> <span class="built_in">len</span>(simgr.active) == <span class="number">1</span>:</span><br><span class="line">    simgr.step()</span><br><span class="line"></span><br><span class="line">simgr</span><br><span class="line">simgr.active</span><br><span class="line"></span><br><span class="line"><span class="comment"># 直到一切结束</span></span><br><span class="line">simgr.run()</span><br><span class="line">simgr</span><br></pre></td></tr></table></figure>
+<p>当一个状态在执行过程中未能产生任何后继者时，例如它到达了退出系统调用，它会从活动存储中移除并放置在死锁存储中。</p>
+<h4 id="Stash-Management"><a href="#Stash-Management" class="headerlink" title="Stash Management"></a>Stash Management</h4><p>在存储中移动状态时使用.move()，它接受from_stash、to_stash和filter_func。例如移动在输出中具有特定字符串的所有内容。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">simgr.move(from_stash=<span class="string">&#x27;deadended&#x27;</span>, to_stash=<span class="string">&#x27;authenticated&#x27;</span>, filter_func=<span class="keyword">lambda</span> s: <span class="string">b&#x27;Welcome&#x27;</span> <span class="keyword">in</span> s.posix.dumps(<span class="number">1</span>))</span><br><span class="line">simgr</span><br></pre></td></tr></table></figure>
+<p>只需要求将状态转移到此，就可以创建一个名为“authenticated”的新存储，此存储中的所有状态在其标准输出中都有“welcome”。</p>
+<p>每个stash是一个列表，可以索引或迭代列表以访问每个单独的状态，但也有一些替代方法可以访问这些状态。如果在stash名称前面加上one_将获得存储中的第一个状态，如果在stash的名称前加上mp_将获得该stash的mulpyplexed版本。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> s <span class="keyword">in</span> simgr.deadended + simgr.authenticated:</span><br><span class="line">     <span class="built_in">print</span>(<span class="built_in">hex</span>(s.addr))</span><br><span class="line"></span><br><span class="line">simgr.one_deadended</span><br><span class="line">simgr.mp_authenticated</span><br><span class="line">simgr.mp_authenticated.posix.dumps(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>step、run和其他对单个路径存储进行操作的方法都可以采用stash参数，指定要对哪个存储进行操作。</p>
+<h4 id="Stash-types"><a href="#Stash-types" class="headerlink" title="Stash types"></a>Stash types</h4><p>一些用于对某些特殊类型的状态的stash：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Stash</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>active</td>
+<td>此存储包含默认情况下将步进的状态，除非指定了备用存储。</td>
+</tr>
+<tr>
+<td>deadened</td>
+<td>当由于某种原因（包括不再有有效指令、其所有后继的未饱和状态或无效指令指针）无法继续执行时，状态将进入死区存储。</td>
+</tr>
+<tr>
+<td>pruned</td>
+<td>使用LAZY_SOLVES时，除非绝对必要，否则不会检查状态的可满足性。当发现一个状态在LAZY_SOLVES存在的情况下不饱和时，遍历状态层次结构以确定在其历史中它最初何时变得不饱和。作为该点的后代的所有状态（也将是未饱和状态）内修剪并放入此存储中。</td>
+</tr>
+<tr>
+<td>unconstrained</td>
+<td>如果将save_unconstrained选项提供给SimulationManager构造函数，则将被确定为不受约束的状态（即由用户数据或其他符号数据源控制的指令指针）放置在此处。</td>
+</tr>
+<tr>
+<td>unsat</td>
+<td>如果将save_unsat选项提供给SimulationManager构造函数，则将被确定为不可满足的状态（即它们具有相互矛盾的约束，）放置在这里。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>还有另一个不是隐藏状态的列表：errored。 如果在执行过程中引发了错误，那么状态将被包装在一个ErrorRecord对象中，该对象包含状态和它引发的错误，然后记录将被插入到errored中。 可以使用record.state获得导致错误的执行开始时的状态，可以看到record.error引发的错误，并且可以在该站点启动调试shell record.debug()出错。</p>
+<h5 id="Simple-Exploration"><a href="#Simple-Exploration" class="headerlink" title="Simple Exploration"></a>Simple Exploration</h5><p>符号执行中一个极其常见的操作是找到到达某个地址的状态，同时丢弃所有经过另一个地址的状态。模拟管理器有一个用于这种模式的快捷方式.explore()方法。</p>
+<p>使用find参数启动.explore()时，执行将一直运行直到找到与 find 条件匹配的状态，该状态可以是要停止的指令的地址、要停止的地址列表或需要的函数 一个状态并返回它是否满足某些条件。当活动存储中的任何状态与查找条件匹配时，它们将被放入找到的存储中并且执行终止。 然后可以探索找到的状态或决定丢弃它并继续其他状态。还可以使用与find相同的格式指定避免条件。当某个状态符合避免条件时，将其放入避免存储中并继续执行。最后num_find参数控制在返回之前应该找到的状态数，默认值为1。当然，如果在找到这么多解决方案之前，活动存储中的状态用完了，则无论如何都会停止执行。</p>
+<p>举例：</p>
+<p>首先加载二进制文件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proj = angr.Project(<span class="string">&#x27;examples/CSCI-4968-MBE/challenges/crackme0x00a/crackme0x00a&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>然后创建一个模拟管理器：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">simgr = proj.factory.simgr()</span><br></pre></td></tr></table></figure>
+<p>符号执行直到找到符合条件的状态。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">simgr.explore(find=<span class="keyword">lambda</span> s: <span class="string">b&quot;Congrats&quot;</span> <span class="keyword">in</span> s.posix.dumps(<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+<p>现在可以从state中得到flag：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">s = simgr.found[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(s.posix.dumps(<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">flag = s.posix.dumps(<span class="number">0</span>)</span><br><span class="line"><span class="built_in">print</span>(flag)</span><br></pre></td></tr></table></figure>
+<h4 id="Exploration-Techniques"><a href="#Exploration-Techniques" class="headerlink" title="Exploration Techniques"></a>Exploration Techniques</h4><p>angr 附带了几个固定功能可让自定义模拟管理器的行为，称为探索技术。默认的一次执行所有操作策略是广度优先搜索，可以完全改变angr步进过程的行为。</p>
+<p>要使用探索技术，调用simgr_use_technique(tech)，其中tech是ExplorationTechnique子类的一个实例。angr内置的探索技术可以在angr.exploration_techniques下找到。</p>
+<p>一些内置的快速概述：</p>
+<ul>
+<li>DFS：深度优先搜素，一次只保持一个状态处于活动状态，将其余状态放在延迟存储中直到停止或出错。</li>
+<li>Explore：实现了.explore()功能，允许搜素和避开地址。</li>
+<li>LengthLimiter：限制状态通过的路径的最大长度。</li>
+<li>LoopSeer：使用循环计数的合理近似值来丢弃似乎通过循环次数过多的状态，将它们放入旋转存储中，如果用完其他可行的状态，则将它们再次拉出。</li>
+<li>ManaulMergepoint：将程序中的一个地址标记为合并点，因此到达该地址的状态被暂时保持，并且在超时内到达同一点的任何其他状态将被合并在一起。</li>
+<li>MemoryWatcher：监控simgr步骤之间系统上有多少内存是空闲/可用的，如果变得太低则停止探索。</li>
+<li>Oppologist：如果启用此技术并且 angr 遇到不受支持的指令，例如奇怪和外来浮点 SIMD 操作，它将将该指令的所有输入具体化并模拟单个指令使用独角兽引擎，允许继续执行。</li>
+<li>Spiller：当活跃状态过多时，此技术可以将其中一些状态转储到磁盘以保持较低的内存消耗。</li>
+<li>Threading：将线程级并行性添加到步进过程。 由于Python的全局解释器锁，这并没有多大帮助，但是如果有一个程序的分析花费大量时间在angr的本机代码依赖项（unicorn、z3、libvex）中，可以获得一些收益。</li>
+<li>Tracer：一种探索技术，使执行遵循从其他来源记录的动态跟踪，动态跟踪器存储库有一些工具可以生成这些。</li>
+<li>Veritesting：关于自动识别有用合并点的CMU论文的实现。 可以在 SimulationManager 构造函数中使用 veritesting=True 自动启用它。由于它实现静态符号执行的侵入性方式，它通常不能很好地与其他技术配合使用。</li>
+</ul>
+<h3 id="Execution-Engines"><a href="#Execution-Engines" class="headerlink" title="Execution Engines"></a>Execution Engines</h3><p>angr 使用一系列引擎（SimEngine 类的子类）来模拟给定代码段对输入状态的影响。 angr 的执行核心只是按顺序尝试所有可用的引擎，选择第一个能够处理该步骤的引擎。 以下是引擎的默认列表：</p>
+<ul>
+<li>当上一步带入某种无法继续的状态时，故障引擎启动。</li>
+<li>当上一步以系统调用结束时，系统调用引擎启动。</li>
+<li>hook引擎在当前地址被hook时启动</li>
+<li>当UNICORN状态选项启用并且状态中没有符号数据时UNICORN引擎启动。</li>
+<li>VEX引擎作为最终后备启动。</li>
+</ul>
+<h4 id="SimSuccessors"><a href="#SimSuccessors" class="headerlink" title="SimSuccessors"></a>SimSuccessors</h4><p>实际依次尝试所有引擎的代码是project.factory.successors(state, **kwargs)，它将其参数传递给每个引擎。这个函数是state.step()和simulation_manager.step()的核心。它返回一个SimSuccessors对象。SimSuccessors的目的是对存储在各种列表属性中的后继状态进行简单分类。 他们是：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Guard Condition</th>
+<th>Instruction Pointer</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>successors</td>
+<td>True(可以是符号，但限制为True)</td>
+<td>可以是符号的（少于256种）</td>
+<td>引擎处理的状态的正常、可满足的后续状态。该状态的指令指针可能是符号的（即基于用户输入的计算跳转），因此该状态实际上可能代表几个潜在的继续执行。</td>
+</tr>
+<tr>
+<td>unsat_successors</td>
+<td>False(可以是符号，但限制为False)</td>
+<td>可以是符号的</td>
+<td>Unsatisfiable successors。这些是后继者其保护条件只能为假（即不能进行的跳转或必须进行的默认跳转分支）。</td>
+</tr>
+<tr>
+<td>flat_successors</td>
+<td>True(可以是符号，但限制为True)</td>
+<td>具体的值</td>
+<td>后继列表中的状态可以具有符号指令指针。 在代码的其他地方（即在 SimEngineVEX.process中当需要向前推进该状态时），假设单个程序状态仅代表代码中单个点的执行。为了缓解这种情况，当遇到带有符号指令指针的后继状态时会为它们计算所有可能的具体解决方案（最高为 256 的任意阈值），并为每个此类解决方案制作一份状态副本，这个过程为“扁平化”。 这些 flat_successor 是状态，每个状态都有一个不同的具体指令指针。 例如，如果后继状态的指令指针是 X+5，其中 X 具有 X &gt; 0x800000 和 X &lt;= 0x800010 的约束，会将其展平为 16 个不同的 flat_successors 状态，一个指令指针为 0x800006，一个 0x800007，依此类推，直到 0x800015。</td>
+</tr>
+<tr>
+<td>unconstrained_successors</td>
+<td>True(可以是符号，但限制为True)</td>
+<td>符号（多于256种）</td>
+<td>在上述展平过程中，如果结果表明指令指针有超过 256 种可能的解决方案，假设指令指针已被不受约束的数据覆盖（即用户数据的堆栈溢出）。 这些状态被放置在 unconstrained_successors 中而不是后继者中。</td>
+</tr>
+<tr>
+<td>all_successors</td>
+<td>任何</td>
+<td>符号</td>
+<td>successors+unsat_successors+ unconstrained_successors。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="Breakpoints"><a href="#Breakpoints" class="headerlink" title="Breakpoints"></a>Breakpoints</h4><p>angr支持断点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line">b = angr.Project(<span class="string">&#x27;examples/fauxware/fauxware&#x27;</span>)</span><br><span class="line">s = b.factory.entry_state()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加断点，此断点将在内存写入发生之前放入ipdb</span></span><br><span class="line">s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 另一方面，可以在内存写入发生后立即触发断点</span></span><br><span class="line"><span class="comment"># 也可以运行一个回调函数而不是打开ipdb</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">debug_func</span>(<span class="params">state</span>):</span><br><span class="line">     <span class="built_in">print</span>(<span class="string">&quot;State %s is about to do a memory write!&quot;</span>)</span><br><span class="line"></span><br><span class="line">s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, when=angr.BP_AFTER, action=debug_func)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以放到IPython中</span></span><br><span class="line">s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, when=angr.BP_AFTER, action=angr.BP_IPYTHON)</span><br></pre></td></tr></table></figure>
+<p>除了内存写入之外，还有许多其他地方需要中断，都可以在BP_BEFORE或BP_AFTER中断：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Event type</th>
+<th>Event meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mem_read</td>
+<td>正在读取内存</td>
+</tr>
+<tr>
+<td>mem_write</td>
+<td>正在写入内存</td>
+</tr>
+<tr>
+<td>address_concretization</td>
+<td>正在解析符号内存访问</td>
+</tr>
+<tr>
+<td>reg_read</td>
+<td>正在读取寄存器</td>
+</tr>
+<tr>
+<td>reg_write</td>
+<td>正在写入寄存器</td>
+</tr>
+<tr>
+<td>tmp_read</td>
+<td>正在读取临时区</td>
+</tr>
+<tr>
+<td>tmp_write</td>
+<td>正在写入临时区</td>
+</tr>
+<tr>
+<td>expr</td>
+<td>正在创建表达式（算术运算的结果或IR中的常数）</td>
+</tr>
+<tr>
+<td>statement</td>
+<td>正在翻译一份IR声明</td>
+</tr>
+<tr>
+<td>instruction</td>
+<td>正在翻译一条新的（本机）指令</td>
+</tr>
+<tr>
+<td>irsb</td>
+<td>正在翻译一个新的基本块</td>
+</tr>
+<tr>
+<td>constraints</td>
+<td>新的约束被添加到该state</td>
+</tr>
+<tr>
+<td>exit</td>
+<td>正在从执行中生成successor</td>
+</tr>
+<tr>
+<td>fork</td>
+<td>一个符号执行状态已经分叉成多个状态</td>
+</tr>
+<tr>
+<td>symbolic_variable</td>
+<td>正在创建一个新的符号变量</td>
+</tr>
+<tr>
+<td>call</td>
+<td>一个call指令被命中</td>
+</tr>
+<tr>
+<td>return</td>
+<td>一个ret指令被命中</td>
+</tr>
+<tr>
+<td>simprocedure</td>
+<td>执行一个简单程序（或系统调用）</td>
+</tr>
+<tr>
+<td>dirty</td>
+<td>执行脏IR回调</td>
+</tr>
+<tr>
+<td>syscall</td>
+<td>系统调用被执行（除了simprocedure事件之外调用）</td>
+</tr>
+<tr>
+<td>engine_process</td>
+<td>SimEngine即将处理一些代码</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这些事件不同属性：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Event type</th>
+<th style="text-align:left">Attribute name</th>
+<th style="text-align:left">Attribute availability</th>
+<th style="text-align:left">Attribute meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">mem_read</td>
+<td style="text-align:left">mem_read_address</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在读取内存的地址</td>
+</tr>
+<tr>
+<td style="text-align:left">mem_read</td>
+<td style="text-align:left">mem_read_expr</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">该地址的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">mem_read</td>
+<td style="text-align:left">mem_read_length</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">读取的内存长度</td>
+</tr>
+<tr>
+<td style="text-align:left">mem_read</td>
+<td style="text-align:left">mem_read_condition</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">内存读取的情况</td>
+</tr>
+<tr>
+<td style="text-align:left">mem_write</td>
+<td style="text-align:left">mem_write_address</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在写入内存的地址</td>
+</tr>
+<tr>
+<td style="text-align:left">mem_write</td>
+<td style="text-align:left">mem_write_length</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">内存写入的长度</td>
+</tr>
+<tr>
+<td style="text-align:left">mem_write</td>
+<td style="text-align:left">mem_write_expr</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在编写的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">mem_write</td>
+<td style="text-align:left">mem_write_condition</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">内存写入的条件</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_read</td>
+<td style="text-align:left">reg_read_offset</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在读取的寄存器的偏移量</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_read</td>
+<td style="text-align:left">reg_read_length</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">读取的寄存器长度</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_read</td>
+<td style="text-align:left">reg_read_expr</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">寄存器中的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_read</td>
+<td style="text-align:left">reg_read_condition</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">寄存器读取的条件</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_write</td>
+<td style="text-align:left">reg_write_offset</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在写入的寄存器的偏移量</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_write</td>
+<td style="text-align:left">reg_write_length</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">寄存器写入的长度</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_write</td>
+<td style="text-align:left">reg_write_expr</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在编写的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">reg_write</td>
+<td style="text-align:left">reg_write_condition</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">寄存器写入的条件</td>
+</tr>
+<tr>
+<td style="text-align:left">tmp_read</td>
+<td style="text-align:left">tmp_read_num</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在读取的临时数</td>
+</tr>
+<tr>
+<td style="text-align:left">tmp_read</td>
+<td style="text-align:left">tmp_read_expr</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">临时区的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">tmp_write</td>
+<td style="text-align:left">tmp_write_num</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">临时区写入的编号</td>
+</tr>
+<tr>
+<td style="text-align:left">tmp_write</td>
+<td style="text-align:left">tmp_write_expr</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">写入临时区的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">expr</td>
+<td style="text-align:left">expr</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">IR表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">expr</td>
+<td style="text-align:left">expr_result</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">表达式被评估的值</td>
+</tr>
+<tr>
+<td style="text-align:left">statement</td>
+<td style="text-align:left">statement</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">IR语句的索引（在IR基本块中）</td>
+</tr>
+<tr>
+<td style="text-align:left">instruction</td>
+<td style="text-align:left">instruction</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">本机指令的地址</td>
+</tr>
+<tr>
+<td style="text-align:left">irsb</td>
+<td style="text-align:left">address</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">基本块的地址</td>
+</tr>
+<tr>
+<td style="text-align:left">constraints</td>
+<td style="text-align:left">added_constraints</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在添加的约束表达式列表</td>
+</tr>
+<tr>
+<td style="text-align:left">call</td>
+<td style="text-align:left">function_address</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">被调用的函数的名称</td>
+</tr>
+<tr>
+<td style="text-align:left">exit</td>
+<td style="text-align:left">exit_target</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">表示SimExit目标的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">exit</td>
+<td style="text-align:left">exit_guard</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">表示SimExit守卫的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">exit</td>
+<td style="text-align:left">exit_jumpkind</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">表示SimExit类型的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">symbolic_variable</td>
+<td style="text-align:left">symbolic_name</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">正在创建的符号变量的名称。求解器引擎可能会修改此名称，检查symbolic_expr以获得最终的符号表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">symbolic_variable</td>
+<td style="text-align:left">symbolic_size</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">正在创建的符号变量的大小</td>
+</tr>
+<tr>
+<td style="text-align:left">symbolic_variable</td>
+<td style="text-align:left">symbolic_expr</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">表示新符号变量的表达式</td>
+</tr>
+<tr>
+<td style="text-align:left">address_concretization</td>
+<td style="text-align:left">address_concretization_strategy</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">用于解析地址的 SimConcretizationStrategy。这可以由断点处理程序修改以更改将应用的策略。如果断点处理程序将此设置为无，则将跳过此策略。</td>
+</tr>
+<tr>
+<td style="text-align:left">address_concretization</td>
+<td style="text-align:left">address_concretization_action</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">用于记录记忆动作的SimAction对象</td>
+</tr>
+<tr>
+<td style="text-align:left">address_concretization</td>
+<td style="text-align:left">address_concretization_memory</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">对其执行操作的SimMemory对象</td>
+</tr>
+<tr>
+<td style="text-align:left">address_concretization</td>
+<td style="text-align:left">address_concretization_expr</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">表示正在解析的内存索引的AST。断点处理程序可以修改它以影响正在解析的地址</td>
+</tr>
+<tr>
+<td style="text-align:left">address_concretization</td>
+<td style="text-align:left">address_concretization_add_constraints</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">是否应该为此读取添加约束</td>
+</tr>
+<tr>
+<td style="text-align:left">address_concretization</td>
+<td style="text-align:left">address_concretization_result</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">已解析的内存地址列表。断点处理程序可以覆盖这些以产生不同的解析结果</td>
+</tr>
+<tr>
+<td style="text-align:left">syscall</td>
+<td style="text-align:left">syscall_name</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">系统调用的名称</td>
+</tr>
+<tr>
+<td style="text-align:left">simprocedure</td>
+<td style="text-align:left">simprocedure_name</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">simprocedure的名称</td>
+</tr>
+<tr>
+<td style="text-align:left">simprocedure</td>
+<td style="text-align:left">simprocedure_addr</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">simprocedure的地址</td>
+</tr>
+<tr>
+<td style="text-align:left">simprocedure</td>
+<td style="text-align:left">simprocedure_result</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">simprocedure的返回值。可以在BP_BEFORE中覆盖它，这将导致跳过实际的简单过程并使用返回值。</td>
+</tr>
+<tr>
+<td style="text-align:left">simprocedure</td>
+<td style="text-align:left">simprocedure</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">实际的SimProcedure对象</td>
+</tr>
+<tr>
+<td style="text-align:left">dirty</td>
+<td style="text-align:left">dirty_name</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">脏调用名称</td>
+</tr>
+<tr>
+<td style="text-align:left">dirty</td>
+<td style="text-align:left">dirty_handler</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">将运行以处理脏调用的函数</td>
+</tr>
+<tr>
+<td style="text-align:left">dirty</td>
+<td style="text-align:left">dirty_args</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">地址</td>
+</tr>
+<tr>
+<td style="text-align:left">dirty</td>
+<td style="text-align:left">dirty_result</td>
+<td style="text-align:left">BP_AFTER</td>
+<td style="text-align:left">脏调用的返回值，可以在BP_BEFORE中覆盖它，这将导致实际的脏调用被跳过，而使用返回值</td>
+</tr>
+<tr>
+<td style="text-align:left">engine_process</td>
+<td style="text-align:left">sim_engine</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">正在处理的</td>
+</tr>
+<tr>
+<td style="text-align:left">engine_process</td>
+<td style="text-align:left">successors</td>
+<td style="text-align:left">BP_BEFORE or BP_AFTER</td>
+<td style="text-align:left">定义引擎结果的SimSuccessors对象</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这些属性可以在适当的断点回调期间作为state.inspect的成员访问，以访问适当的值。可以修改这些值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">track_reads</span>(<span class="params">state</span>):</span><br><span class="line">     <span class="built_in">print</span>(<span class="string">&#x27;Read&#x27;</span>, state.inspect.mem_read_expr, <span class="string">&#x27;from&#x27;</span>, state.inspect.mem_read_address)</span><br><span class="line"></span><br><span class="line">s.inspect.b(<span class="string">&#x27;mem_read&#x27;</span>, when=angr.BP_AFTER, action=track_reads)</span><br></pre></td></tr></table></figure>
+<p>此外，这些属性的每一个都可以用作inspect.b的关键字参数，以使断点有条件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果0x1000是其目标表达式的可能值，这将在内存写入之前中断</span></span><br><span class="line">s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, mem_write_address=<span class="number">0x1000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果0x1000是其表达式的“唯一”值，这将在内存写入之前中断</span></span><br><span class="line">s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, mem_write_address=<span class="number">0x1000</span>, mem_write_address_unique=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 这将在指令0x8000之后中断，但只有0x1000是从内存中读取的最后一个表达式的可能值</span></span><br><span class="line">s.inspect.b(<span class="string">&#x27;instruction&#x27;</span>, when=angr.BP_AFTER, instruction=<span class="number">0x8000</span>, mem_read_expr=<span class="number">0x1000</span>)</span><br></pre></td></tr></table></figure>
+<p>还可以指定一个函数作为条件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 这是一个可以做任何事情的复杂条件，它确保RAX为0x41414141&amp;</span></span><br><span class="line"><span class="comment"># 从0x8004开始的基本块在此路径历史的某个时间执行</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cond</span>(<span class="params">state</span>):</span><br><span class="line">     <span class="keyword">return</span> state.<span class="built_in">eval</span>(state.regs.rax, cast_to=<span class="built_in">str</span>) == <span class="string">&#x27;AAAA&#x27;</span> <span class="keyword">and</span> <span class="number">0x8004</span> <span class="keyword">in</span> state.inspect.backtrace</span><br><span class="line"></span><br><span class="line">s.inspect.b(<span class="string">&#x27;mem_write&#x27;</span>, condition=cond)</span><br></pre></td></tr></table></figure>
+<h4 id="Caution-about-mem-read-breakpoint"><a href="#Caution-about-mem-read-breakpoint" class="headerlink" title="Caution about mem_read breakpoint"></a>Caution about mem_read breakpoint</h4><p>每当执行程序或二进制分析读取内存时，就会触发mem_read断点。 如果在mem_read上使用断点并且还使用state.mem从内存地址加载数据，那么断点将在读取内存时被触发。</p>
+<p>因此，如果想要从内存中加载数据而不触发设置的任何mem_read断点，则使用state.memory.load和关键字参数disable_actions=True和inspect=False。</p>
+<p>state.find也是，可以使用相同的关键字参数来防止触发mem_read断点。</p>
+<h3 id="Analyses-1"><a href="#Analyses-1" class="headerlink" title="Analyses"></a>Analyses</h3><p>angr的目标是让对二进制程序在进行有用的分析时变得容易。angr允许将分析代码打包成可以轻松应用于任何项目的通用格式。所有分析都出现在project.analysiss下（例如 project.analysiss.CFGFast()），并且可以作为函数调用，返回分析结果实例。</p>
+<h3 id="Built-in-Analyses"><a href="#Built-in-Analyses" class="headerlink" title="Built-in Analyses"></a>Built-in Analyses</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CFGFast</td>
+<td>构建程序的快速控制流图</td>
+</tr>
+<tr>
+<td>CFGEmulated</td>
+<td>构建程序的精确控制流图</td>
+</tr>
+<tr>
+<td>VFG</td>
+<td>对程序的每个函数执行VSA，创建价值流图并检测堆栈变量</td>
+</tr>
+<tr>
+<td>DDG</td>
+<td>计算数据依赖图，允许确定给定值依赖于哪些语句</td>
+</tr>
+<tr>
+<td>BackwardSlice</td>
+<td>计算程序相对于某个目标的后向切片</td>
+</tr>
+<tr>
+<td>Identifier</td>
+<td>识别CGC二进制文件中的常用库函数</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="Resilience"><a href="#Resilience" class="headerlink" title="Resilience"></a>Resilience</h4><p>分析可以写成有弹性的，基本上可以捕获和记录任何错误。这些错误取决于它们是如何被捕获的，被记录到分析的errors或named_errors属性中。但是在“快速失败”模式下运行分析不处理错误，可以将参数 fail_fast=True 传递到分析构造函数中。</p>
+<h2 id="Built-in-Analyses-1"><a href="#Built-in-Analyses-1" class="headerlink" title="Built-in Analyses"></a>Built-in Analyses</h2><h3 id="CFG"><a href="#CFG" class="headerlink" title="CFG"></a>CFG</h3><p>angr包括分析以恢复二进制程序的控制流图，还包括函数边界的恢复，以及对间接跳转和其他有用元数据的推理。</p>
+<h4 id="General-ideas"><a href="#General-ideas" class="headerlink" title="General ideas"></a>General ideas</h4><p>可以对二进制执行的基本分析时控制流图，CFG是一个图，其中基本块作为节点，跳转/调用/rets/etc作为边。</p>
+<p>在angr中，可以生成两种类型的CFG：静态CFG(CFGFast)和动态CFG(CFGEmulated)。</p>
+<p>CFGFast使用静态分析来生成CFG。它明显更快但理论上受限于某些控制流转换只能在执行时解决的事实。 这与其他流行的逆向工程工具执行的 CFG 分析相同，其结果与它们的输出相当。</p>
+<p>CFGEmulated使用符号执行来捕获CFG。虽然它在理论上更准确但速度要慢得多。 由于仿真的准确性问题（系统调用、缺少硬件功能等），它通常也不那么完整。</p>
+<p>可以通过以下方法构建CFG：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"><span class="comment"># 加载项目</span></span><br><span class="line">p = angr.Project(<span class="string">&#x27;/bin/true&#x27;</span>,load_options=&#123;<span class="string">&#x27;auto_load_libs&#x27;</span>:<span class="literal">False</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态CFG</span></span><br><span class="line">cfg = p.analyses.CFGFast()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成动态CFG</span></span><br><span class="line">cfg = p.analyses.CFGEmulated(keep_state=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></p>
+<h4 id="Using-the-CFG"><a href="#Using-the-CFG" class="headerlink" title="Using the CFG"></a>Using the CFG</h4><p>CFG的核心是一个NetworkX有向图，NetworkX API都可用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&quot;This is the graph:&quot;</span>, cfg.graph)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;It has %d nodes and %d edges&quot;</span> % (<span class="built_in">len</span>(cfg.graph.nodes()), <span class="built_in">len</span>(cfg.graph.edges())))</span><br></pre></td></tr></table></figure>
+<p>CFG图的节点是类CFGNode的实例。由于上下文敏感性，给定的基本块可以在图中具有多个节点（用于多个上下文）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在给定位置选取“any”节点:</span></span><br><span class="line">entry_node = cfg.get_any_node(p.entry)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 抓取所有节点</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;There were %d contexts for the entry block&quot;</span> % <span class="built_in">len</span>(cfg.get_all_nodes(p.entry)))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以查找前辈和后继者</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Predecessors of the entry point:&quot;</span>, entry_node.predecessors)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Successors of the entry point:&quot;</span>, entry_node.successors)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Successors (and type of jump) of the entry point:&quot;</span>, [ jumpkind + <span class="string">&quot; to &quot;</span> + <span class="built_in">str</span>(node.addr) <span class="keyword">for</span> node,jumpkind <span class="keyword">in</span> cfg.get_successors_and_jumpkind(entry_node) ])</span><br></pre></td></tr></table></figure>
+<h5 id="Viewing-the-CFG"><a href="#Viewing-the-CFG" class="headerlink" title="Viewing the CFG"></a>Viewing the CFG</h5><p>angr没有提供用于渲染CFG分析输出的内置机制，并且尝试使用传统的图形渲染库（如matplotlib）将导致图像无法使用。</p>
+<h4 id="Shared-Libraries"><a href="#Shared-Libraries" class="headerlink" title="Shared Libraries"></a>Shared Libraries</h4><p>CFG 分析不区分来自不同二进制对象的代码。 这意味着默认情况下，它将尝试通过加载的共享库分析控制流。要加载没有共享库的二进制文件，请将以下关键字参数添加到项目构造函数：load_options={‘auto_load_libs’: False}</p>
+<h4 id="Function-Manager"><a href="#Function-Manager" class="headerlink" title="Function Manager"></a>Function Manager</h4><p>CFG结果生成一个名为Function Manager的对象，可通过cfg.kb.functions访问。这个对象最常见的用例是像字典一样访问它。它将地址映射到Function对象，后者可以告诉有关函数的属性。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">entry_func = cfg.kb.functions[p.entry]</span><br></pre></td></tr></table></figure>
+<p>函数的几个重要属性：</p>
+<ul>
+<li><p>entry_func.block_addrs：属于该功能的基本块开始的一组地址。</p>
+</li>
+<li><p>entry_func.blocks：属于该功能的一组基本块，可以使用capstone进行探索和拆卸。</p>
+</li>
+<li><p>entry_func.string_references()：返回函数中任何点引用的所有常量字符串的列表。它们被格式化为 (addr, string) 元组，其中addr是字符串所在的二进制数据部分中的地址，而string是包含字符串值的Python字符串。</p>
+</li>
+<li><p>entry_func.returning： 一个布尔值表示函数是否可以返回，False表示所有路径都不返回。</p>
+</li>
+<li><p>entry_func.callable：一个引用此函数的angr可调用对象，可以使用Python参数调用Python函数一样调用它并返回实际效果（可能是符号），就好像使用这些参数运行函数一样。</p>
+</li>
+<li><p>entry_func.transition_graph：一个NetworkX DiGraph，描述了函数本身的控制流，类似于IDA在每个功能级别上显示的控制流图。</p>
+</li>
+<li><p>entry_func.name：函数的名称。</p>
+</li>
+<li><p>entry<em>func.has_unresolved_calls和entry.has_unresolved_jumps：与检测CFG中的不精确性有关。有时分析无法检测到间接调用或跳转的可能目标是什么。如果这发生在函数中则该函数会将适当的has_unresolved</em>*值设置为True。</p>
+</li>
+<li><p>entry_func.get_call_sites()：返回以调用其他函数结尾的基本块的所有地址的列表。</p>
+</li>
+<li><p>entry_func.get_call_target(callsite_addr)：将根据调用点地址列表中的callsite_addr返回该调用点将调用的位置。</p>
+</li>
+<li><p>entry_func.get_call_return(callsite_addr)：将根据调用点地址列表中的callsite_addr返回调用点应返回的位置。</p>
+</li>
+</ul>
+<h4 id="CFGFast-details"><a href="#CFGFast-details" class="headerlink" title="CFGFast details"></a>CFGFast details</h4><p>CFGFast执行静态控制流和功能恢复，从入口点（或任何用户定义的点）开始，大致执行以下过程：</p>
+<ol>
+<li>将基本块提升到VEX IR，并收集其所有退出（跳转、调用、返回或继续到下一个块）。</li>
+<li>对于每一个出口，如果这个出口是一个常熟地址，就给正确类型的CFG添加一条边，并将目标块添加到要分析的块集合中。</li>
+<li>在函数调用的情况下，目标块也被认为是新函数的开始，如果已知目标函数返回，则调用之后的块也会被分析。</li>
+<li>如果发生返回，则将当前函数标记为返回，并更新调用图和CFG中的相应边。</li>
+<li>对于所有间接跳转（具有非常量目标的块退出），执行间接跳转解析。</li>
+</ol>
+<h5 id="Finding-function-starts"><a href="#Finding-function-starts" class="headerlink" title="Finding function starts"></a>Finding function starts</h5><p>CFGFast支持多种方式来确定函数的开始和结束位置。</p>
+<p>首先将分析二进制文件的主要入口点。对于带有符号的二进制文件（例如未剥离的ELF和PE二进制文件），所有函数符号都将用作可能的起点。对于没有符号的二进制文件，例如剥离的二进制文件或使用blob加载程序后端加载的二进制文件，CFG将扫描二进制文件以查找为二进制文件体系结构定义的一组函数序言。最后默认情况下将扫描二进制文件的整个代码部分以查找可执行内容，而不考虑序言或符号。</p>
+<p>与CFGEmulated一样，当函数是给定架构上“call”指令的目标时会启动。</p>
+<h5 id="FakeRets-and-function-returns"><a href="#FakeRets-and-function-returns" class="headerlink" title="FakeRets and function returns"></a>FakeRets and function returns</h5><p>当观察到函数调用时，首先假设被调用函数最终返回并将其后面的块视为调用函数的一部分。这个推断的控制流边缘被称为“FakeRet”。如果在分析被调用者时发现这不是真的更新CFG，删除这个“FakeRet”，并相应地更新调用图和功能块。因此CFG 被恢复两次。这样做时每个函数中的块集以及函数是否返回都可以直接恢复和传播。</p>
+<h5 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h5><p>使用CFGFast时的选项：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>force_complete_scan</td>
+<td>（默认值：True）出于功能检测目的，将整个二进制文件视为代码，如果有一个blob（例如混合代码和数据）想关闭它。</td>
+</tr>
+<tr>
+<td>function_starts</td>
+<td>地址列表，用作分析的入口点。</td>
+</tr>
+<tr>
+<td>normalize</td>
+<td>（默认值：False）对结果函数进行归一化（例如每个基本块最多属于一个函数，后边指向基本块的开始）。</td>
+</tr>
+<tr>
+<td>resolve_indirect_jumps</td>
+<td>（默认值：True）执行附加分析以尝试为CFG创建期间发现的每个间接跳转找到目标。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="CFGEmulated-details"><a href="#CFGEmulated-details" class="headerlink" title="CFGEmulated details"></a>CFGEmulated details</h4><h5 id="Options-1"><a href="#Options-1" class="headerlink" title="Options"></a>Options</h5><p>CFGEmulated最常见的选项包括：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>context_sensitivity_level</td>
+<td>这将设置分析的上下文敏感度级别，默认为1。</td>
+</tr>
+<tr>
+<td>starts</td>
+<td>地址列表，用作分析的入口点。</td>
+</tr>
+<tr>
+<td>avoid_runs</td>
+<td>分析中要忽略的地址列表。</td>
+</tr>
+<tr>
+<td>call_depth</td>
+<td>将分析的深度限制为一些数字调用，有助于检查特定函数可以直接跳转到哪些函数。</td>
+</tr>
+<tr>
+<td>inital_state</td>
+<td>可以向CFG提供初始状态，它将在整个分析过程中使用。</td>
+</tr>
+<tr>
+<td>keep_state</td>
+<td>为了节省内存，默认丢弃每个基本块的状态，如果keep_state为True，则状态保存在CFGNode中。</td>
+</tr>
+<tr>
+<td>enable_symbolic_back_traversal</td>
+<td>是否启用解决间接跳转的强化技术。</td>
+</tr>
+<tr>
+<td>enable_advanced_backward_slicing</td>
+<td>是否启用另一种强化技术来解决直接跳跃。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h5 id="Context-Sensitivity-Level"><a href="#Context-Sensitivity-Level" class="headerlink" title="Context Sensitivity  Level"></a>Context Sensitivity  Level</h5><p>angr通过执行每个基本块并查看它的去向来构造一个CFG。一个基本块在不同的上下文中可以有不同的行为。如果一个块以函数返回结束，则该返回的目标将不同，这取决于包含该基本块的函数的不同调用者。</p>
+<p>上下文敏感度级别是保留在调用堆栈上的此类调用者的数量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">void error(char *error)</span><br><span class="line">&#123;</span><br><span class="line">	puts(error);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void alpha()</span><br><span class="line">&#123;</span><br><span class="line">	puts(<span class="string">&quot;alpha&quot;</span>);</span><br><span class="line">	error(<span class="string">&quot;alpha!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void beta()</span><br><span class="line">&#123;</span><br><span class="line">	puts(<span class="string">&quot;beta&quot;</span>);</span><br><span class="line">	error(<span class="string">&quot;beta!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void main()</span><br><span class="line">&#123;</span><br><span class="line">	alpha();</span><br><span class="line">	beta();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的示例有四个调用链：main&gt;alpha&gt;puts、main&gt;alpha&gt;error&gt;puts 和 main&gt;beta&gt;puts、main&gt;beta&gt;error&gt;puts。虽然在这种情况下angr 可能可以执行两个调用链，但这对于较大的二进制文件来说变得不可行。因此angr执行具有受上下文敏感级别限制的状态的块。也就是说，每个函数都会针对调用它的每个唯一上下文重新分析。</p>
+<p>举例，给定不同的上下文敏感度，则将根据上下文分析puts()：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Meaning</th>
+<th>Contexts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Callee-only</td>
+<td>puts</td>
+</tr>
+<tr>
+<td>1</td>
+<td>One caller,plus callee</td>
+<td>alpha&gt;puts<br />beta&gt;puts<br />error&gt;puts</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Two callers,plus callee</td>
+<td>alpha&gt;error&gt;puts<br />main&gt;alpha&gt;puts<br />beta&gt;error&gt;puts<br />main&gt;beta&gt;puts</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Three callers,plus callee</td>
+<td>main&gt;alpha&gt;error&gt;puts<br />main&gt;alpha&gt;puts<br />main&gt;beta&gt;error&gt;puts<br />main&gt;beta&gt;puts</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>提高上下文敏感度级别的好处是可以从CFG中收集到更多信息。 例如上下文敏感度为1时，CFG将显示当从alpha调用时puts返回到alpha，当从错误调用时puts返回到错误等等。在上下文敏感度为0的情况下，CFG仅显示将返回值设为alpha、beta和error。具体来说，这是IDA中使用的上下文敏感度级别。提高上下文敏感度级别的缺点是它会成倍地增加分析时间。</p>
+<h3 id="Backward-Slicing"><a href="#Backward-Slicing" class="headerlink" title="Backward Slicing"></a>Backward Slicing</h3><p>程序切片是从原始程序中获得的语句子集，通常通过删除零个或多个语句。切片通常有助于调试和程序理解。 通常更容易在程序切片上找到变量的来源。</p>
+<p>从程序中的一个目标构造一个后向切片，该切片中的所有数据流都在该目标处结束。</p>
+<p>angr内置的分析BackwardSlice用于构造一个后向程序切片。</p>
+<h4 id="First-Step-First"><a href="#First-Step-First" class="headerlink" title="First Step First"></a>First Step First</h4><p>需要输入以下信息来构建BackwardSlice：</p>
+<ul>
+<li><p>Required CFG：程序的控制流图（CFG）。此CFG必须是准确的CFG（CFGEmulated）</p>
+</li>
+<li><p>Required Target：后向切片终止的最终目的地</p>
+</li>
+<li><p>Optional CDG：从CFG派生的控制依赖图（CDG）</p>
+</li>
+<li><p>Optional DDG：建立在CFG之上的数据依赖图（DDG）</p>
+</li>
+</ul>
+<p>构造BackwardSlice：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line">b = angr.Project(<span class="string">&quot;examples/fauxware/fauxware&quot;</span>, load_options=&#123;<span class="string">&quot;auto_load_libs&quot;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成一个CFG.为了之后生成数据依赖图，必须:</span></span><br><span class="line"><span class="comment"># - 通过指定keep_state=True来保持所有输入状态</span></span><br><span class="line"><span class="comment"># - 通过添加angr.options.refs选项集来存储内存、寄存器和临时值访问</span></span><br><span class="line"><span class="comment"># 随意为CFG提供更多参数（例如context_sensitive_level） </span></span><br><span class="line"><span class="comment"># 根据需要进行恢复</span></span><br><span class="line">cfg = b.analyses.CFGEmulated(keep_state=<span class="literal">True</span>,state_add_options=angr.sim_options.refs, context_sensitivity_level=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成控制依赖图</span></span><br><span class="line">cdg = b.analyses.CDG(cfg)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建数据依赖图</span></span><br><span class="line">ddg = b.analyses.DDG(cfg)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 去exit()调用，被建模为SimProdure</span></span><br><span class="line">target_func = cfg.kb.functions.function(name=<span class="string">&quot;exit&quot;</span>)</span><br><span class="line"><span class="comment"># 需要CFGNode实例</span></span><br><span class="line">target_node = cfg.get_any_node(target_func.addr)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 取出一个BackwardSlice</span></span><br><span class="line"><span class="comment"># ’target‘是一个对象列表，其中每个对象都是一个CodeLocation</span></span><br><span class="line"><span class="comment"># 对象或CFGNode实例和语句ID的元组。将语句ID设置为-1意味着该CFGNode的最开始。SimProcedure 没有任何语句，因此应始终为其指定-1</span></span><br><span class="line">bs = b.analyses.BackwardSlice(cfg, cdg=cdg, ddg=ddg, targets=[ (target_node, -<span class="number">1</span>) ])</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(bs)</span><br></pre></td></tr></table></figure>
+<p>如果只是想在CFG之上构建程序切片，可以通过执行以下操作仅基于CFG构建BackwardSlice：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bs = b.analyses.BackwardSlice(cfg, control_flow_slice=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="Using-The-BackwardSlice-Object"><a href="#Using-The-BackwardSlice-Object" class="headerlink" title="Using The BackwardSlice Object"></a>Using The BackwardSlice Object</h4><h5 id="Members"><a href="#Members" class="headerlink" title="Members"></a>Members</h5><p>构建后，BackwardSlice具有以下描述程序切片的成员：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Mode</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>runs_in_slice</td>
+<td>CFG-only</td>
+<td>一个networkx.DiGraph实例，显示程序切片中的块和SimProcedures的地址以及它们之间的转换。</td>
+</tr>
+<tr>
+<td>cfg_nodes_in_slice</td>
+<td>CFG-only</td>
+<td>一个networkx.DiGraph实例，显示程序切片中的CFGNodes和之间的转换。</td>
+</tr>
+<tr>
+<td>chosen_statements</td>
+<td>With DDG</td>
+<td>将基本块地址映射到作为程序切片一部分的语句ID列表的字典。</td>
+</tr>
+<tr>
+<td>chosen_exits</td>
+<td>With DDG</td>
+<td>将基本块地址映射到“exits”列表的字典，列表中的每个exit都是程序切片中的有效转换。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>chosen_exit中的每一个”exit”都是一个元组，包括一个语句ID和一个目标地址列表。例如：“exit”可能如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(35, [ 0x400020 ])</span><br></pre></td></tr></table></figure>
+<p>如果“exit”是基本块的默认退出，将如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(“default”, [ 0x400085 ])</span><br></pre></td></tr></table></figure>
+<h3 id="Function-Identifier"><a href="#Function-Identifier" class="headerlink" title="Function Identifier"></a>Function Identifier</h3><p>标识符使用测试用例来识别CGC二进制文件中的常用库函数。它通过查找有关堆栈变量/参数的一些基本信息进行预过滤。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取所有匹配项</span></span><br><span class="line">p = angr.Project(<span class="string">&quot;../binaries/tests/i386/identifiable&quot;</span>)</span><br><span class="line"><span class="comment"># 通过标识符调用执行注释分析</span></span><br><span class="line">idfer = p.analyses.Identifier()</span><br><span class="line"><span class="keyword">for</span> funcInfo <span class="keyword">in</span> idfer.func_info:</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">hex</span>(funcInfo.addr), funcInfo.name)</span><br></pre></td></tr></table></figure>
+<h2 id="Advanced-Topics"><a href="#Advanced-Topics" class="headerlink" title="Advanced Topics"></a>Advanced Topics</h2><h3 id="Gotchas"><a href="#Gotchas" class="headerlink" title="Gotchas"></a>Gotchas</h3><h4 id="SimProcedure-inaccuracy"><a href="#SimProcedure-inaccuracy" class="headerlink" title="SimProcedure inaccuracy"></a>SimProcedure inaccuracy</h4><p>angr 用 Python 编写的摘要替换了常见的库函数。这些摘要称为 SimProcedures，SimProcedures 减轻路径爆炸，例如在符号字符串上运行的strlen会引入路径爆炸。</p>
+<p>如果由于SimProcedure造成angr显示意外行为：</p>
+<ol>
+<li>禁用SimProcedure（可以通过将选项传递给angr.Project类来排除特定的SimProcedures）。这有可能导致路径爆炸的缺点，除非非常小心地将输入约束到相关函数。使用其他angr功能（例如 Veritesting）可以部分缓解路径爆炸。</li>
+<li>将SimProcedure替换为直接针对相关情况编写的内容。例如，如果只需要支持单个已知格式的字符串，可以编写一个hook来完成这项工作。</li>
+<li>修复SimProcedure</li>
+</ol>
+<h2 id="Extending-angr"><a href="#Extending-angr" class="headerlink" title="Extending angr"></a>Extending angr</h2><h3 id="Programming-SimProcedures"><a href="#Programming-SimProcedures" class="headerlink" title="Programming SimProcedures"></a>Programming SimProcedures</h3><h4 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> angr <span class="keyword">import</span> Project, SimProcedure</span><br><span class="line">project = Project(<span class="string">&#x27;examples/fauxware/fauxware&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BugFree</span>(<span class="title class_ inherited__">SimProcedure</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self, argc, argv</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;Program running with argc=%s and argv=%s&#x27;</span> % (argc, argv))</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设有二进制符号</span></span><br><span class="line">project.hook_symbol(<span class="string">&#x27;main&#x27;</span>, BugFree())</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行快速执行</span></span><br><span class="line">simgr = project.factory.simulation_manager()</span><br><span class="line">simgr.run()  <span class="comment"># 直到没有更多的活跃状态</span></span><br></pre></td></tr></table></figure>
+<p>每当运行到主函数时，不会执行实际的主函数而是执行这个过程，打印出一条消息然后返回。</p>
+<p>输入函数时参数中的值来自哪里？可以使用任意数量的参数定义run() 函数，SimProcedure运行时将通过调用约定自动从程序状态中提取这些参数，并使用它们调用run函数。当从run函数返回一个值时，它被置入状态（同样根据调用约定），并执行从函数返回的实际控制流动作，这取决于架构可能涉及跳转到链接寄存器或跳转到堆栈弹出的结果。</p>
+<p>编写的SimProcedure旨在完全替换它所连接的任何函数，SimProcedures的原始用例是替换库函数。</p>
+<h4 id="Implementation-Context"><a href="#Implementation-Context" class="headerlink" title="Implementation Context"></a>Implementation Context</h4><p>在Project类中，字典project._sim_procedures是地址到SimProcedure实例的映射。当执行管道到达该字典中存在的地址时，即被hook的地址，它将执行project._sim_procedures[address].execute(state)。将参考调用约定以提取参数，复制自身保持线程安全，并运行run()方法。运行SimProcedure的过程必然涉及SimProcedure实例上的状态变化，需要为每个步骤单独设置一个，每次运行时生成一个新的SimProcedure实例。</p>
+<h5 id="kwargs"><a href="#kwargs" class="headerlink" title="kwargs"></a>kwargs</h5><p>此层次结构意味着在多个hook中重用单个SimProcedure。如果想在多个地方hook相同的SimProcedure，但每次都稍作调整该怎么办？angr对此的支持是传递给SimProcedure构造函数的任何其他关键字参数最终都会作为关键字参数传递给SimProcedure的run()方法。</p>
+<h4 id="Data-Types"><a href="#Data-Types" class="headerlink" title="Data Types"></a>Data Types</h4><p>当打印出run()函数的参数时，它们以奇怪的<SAO <BV64 0xSTUFF>&gt;类出现。这是一个 SimActionObject。它只是一个普通位向量的轻包装。 它会稍微跟踪在SimProcedure中对它的具体操作——这有助于静态分析。、</p>
+<p>从过程中返回了Python int 0，这将自动提升为字大小的位向量，可以返回数字、位向量或SimActionObject。</p>
+<p>当要编写处理浮点数的过程时，需要手动指定调用约定。给hook提供一个cc即可：cc = project.factory.cc_from_arg_kinds((True, True), ret_fp=True)和project.hook(address, ProcedureClass(cc=mycc))这个方法传入调用约定适用于所有调用约定。</p>
+<h4 id="Control-Flow"><a href="#Control-Flow" class="headerlink" title="Control Flow"></a>Control Flow</h4><p>简单的方法是从run()返回一个值即可退出SimProcedure。实际上是调用self.ret(value)的简写。self.ret()是知道如何执行从函数返回的特定操作的函数。</p>
+<p>SimProcedures可以使用不同的功能：</p>
+<ul>
+<li>ret(expt)：从函数返回</li>
+<li>jump(addr)：跳转到二进制中的某个地址</li>
+<li>exit(code)：终止程序</li>
+<li>call(addr,args,continue_at)：调用二进制中的函数</li>
+<li>inline_call(procedure，*args)：内联调用另一个SimProcedure并返回结果</li>
+</ul>
+<h5 id="Conditional-Exits"><a href="#Conditional-Exits" class="headerlink" title="Conditional Exits"></a>Conditional Exits</h5><p>如果想要从SimProcedure中添加一个条件分支，需要直接使用SimSuccessors对象来执行当前执行步骤。</p>
+<p>这个接口是self.successors.add_successor(state, addr, guard, jumpkind)。传入的状态将不会被复制并且会发生变异，因此需要事先进行复制。</p>
+<h5 id="SimProcedure-Continuations"><a href="#SimProcedure-Continuations" class="headerlink" title="SimProcedure Continuations"></a>SimProcedure Continuations</h5><p>在二进制文件中调用函数并在SimProcedure中恢复执行，使用self.call(addr, args, continue_at)时，addr应该是要调用的地址，args是要调用它的参数元组，而continue_at是另一个名称SimProcedure类中的方法，在它返回时继续执行。此方法必须与run()方法具有相同的签名。此外可以传递关键字参数cc作为应该用于与被调用者通信的调用约定。</p>
+<p>执行此操作时完成了当前步骤，并且将在指定的函数的下一步重新开始执行。当该函数返回时，它必须返回某个具体地址。该地址由SimProcedure运行时指定：在angr的externs段中分配一个地址，用作返回给定方法调用的返回站点。然后它与经过调整的过程实例的副本hook，以运行指定的continue_at函数而不是run()，并使用与第一次相同的args和kwargs。</p>
+<p>为了正确使用延续子系统，需要将两部分数据附加到SimProcedure类：</p>
+<ul>
+<li>设置类变量 IS_FUNCTION = True</li>
+<li>将类变量local_vars设置为字符串元组，其中每个字符串是SimProcedure上一个实例变量的名称，在返回时保留其值。局部变量可以是任何类型，只要不改变它们的实例。</li>
+</ul>
+<p>状态插件state.callstack有一个名为.procedure_data的条目，SimProcedure运行时使用它来存储当前调用帧的本地信息。angr跟踪堆栈指针以使state.callstack的当前顶部成为有意义的本地数据存储。 它应该存储在堆栈帧中的内存中，但是数据不能被序列化和或内存分配很困难。</p>
+<p>angr在内部使用SimProcedure运行一个Linux程序的full_init_state的所有共享库初始化器：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">LinuxLoader</span>(angr.SimProcedure):</span><br><span class="line">    NO_RET = <span class="literal">True</span></span><br><span class="line">    IS_FUNCTION = <span class="literal">True</span></span><br><span class="line">    local_vars = (<span class="string">&#x27;initializers&#x27;</span>,)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        self.initializers = self.project.loader.initializers</span><br><span class="line">        self.run_initializer()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run_initializer</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(self.initializers) == <span class="number">0</span>:</span><br><span class="line">            self.project._simos.set_entry_register_values(self.state)</span><br><span class="line">            self.jump(self.project.entry)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            addr = self.initializers[<span class="number">0</span>]</span><br><span class="line">            self.initializers = self.initializers[<span class="number">1</span>:]</span><br><span class="line">            self.call(addr, (self.state.posix.argc, self.state.posix.argv, self.state.posix.environ), <span class="string">&#x27;run_initializer&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>这是SimProcedure延续的一个用法。首先请注意当前项目可用于过程实例。在这里只是从加载器中获取动态初始化器列表。然后只要列表不为空就从列表中弹出一个函数指针，注意不要改变列表，因为列表对象是跨状态共享的，然后调用它返回到run_initializer再次发挥作用。当初始化器用完时，设置入口状态并跳转到程序入口点。</p>
+<h4 id="Global-Variables"><a href="#Global-Variables" class="headerlink" title="Global Variables"></a>Global Variables</h4><p>将全局变量存储在state.globals中。这是一本从状态到后继状态的字典。因为它只是一个浅拷贝，它的成员是相同的实例，所以与 SimProcedure 延续中的局部变量相同的规则适用。</p>
+<h4 id="Helping-out-static-analysis"><a href="#Helping-out-static-analysis" class="headerlink" title="Helping out static analysis"></a>Helping out static analysis</h4><p>类变量IS_FUNCTION允许使用SimProcedure延续。可以设置更多的类变量——它们只是标记函数的属性，以便静态分析知道它在做什么。</p>
+<ul>
+<li>NO_RET：如果控制流永远不会从此函数返回，则将此设置为true</li>
+<li>ADDS_EXITS：如果执行任何控制流而不是返回，则将此设置为true</li>
+<li>IS_SYSCALL</li>
+</ul>
+<p>此外，如果设置了ADDS_EXITS，可能还需要定义方法static_exits()。此函数采用单个参数，即将在函数运行前执行的IRSB列表，并要求返回在这种情况下函数将产生的所有出口的列表。返回值应为 (address (int), jumpkind (str))的元组列表。</p>
+<h4 id="User-Hooks"><a href="#User-Hooks" class="headerlink" title="User Hooks"></a>User Hooks</h4><p>编写和使用SimProcedure的过程会做出很多假设，即hook整个函数。还有一个用于hook的替代接口，一个user hook，它可以简化hook代码段的过程。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@project.hook(<span class="params"><span class="number">0x1234</span>, length=<span class="number">5</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">set_rax</span>(<span class="params">state</span>):</span><br><span class="line">    state.regs.rax = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>使用单个函数而不是整个SimProcedure子类，不提取参数，不发生复杂的控制流。</p>
+<p>控制流由长度参数控制。本例中的函数执行完成后，下一步将从hook地址后的5个字节开始。 如果长度参数被省略或设置为零，则执行将继续在hook地址处执行二进制代码，而无需重新触发hook。Ijk_NoHook jumpkind允许这种情况发生。</p>
+<p>如果对来自user hook的控制流进行更多控制，可以返回一个后继状态列表。每个后继者都应该设置 state.regs.ip、state.scratch.guard和state.scratch.jumpkind。IP是目标指令指针，guard 是一个符号布尔值，表示添加到与其相关的状态的约束，而不是其他的，jumpkind是一个VEX枚举字符串，如 Ijk_Boring，表示的性质分支。</p>
+<p>一般如果希望SimProcedure能够提取函数参数或导致程序返回，编写一个完整的SimProcedure，否则使用user hook。</p>
+<h4 id="Hooking-Symbols"><a href="#Hooking-Symbols" class="headerlink" title="Hooking Symbols"></a>Hooking Symbols</h4><p>动态链接的程序有一个符号列表，它们必须从它们列为依赖项的库中导入，并且angr将确保每个导入符号都被解析某个地址，无论它是函数的真正实现还是只是一个与无操作存根hook的虚拟地址。因此，可以只使用Project.hook_symbol API来hook符号引用的地址。</p>
+<p>可以用自己的代码替换库函数，例如：将rand()替换为始终返回一致的值序列的函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">NotVeryRand</span>(<span class="title class_ inherited__">SimProcedure</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self, return_values=<span class="literal">None</span></span>):</span><br><span class="line">        rand_idx = self.state.<span class="built_in">globals</span>.get(<span class="string">&#x27;rand_idx&#x27;</span>, <span class="number">0</span>) % <span class="built_in">len</span>(return_values)</span><br><span class="line">        out = return_values[rand_idx]</span><br><span class="line">        self.state.<span class="built_in">globals</span>[<span class="string">&#x27;rand_idx&#x27;</span>] = rand_idx + <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> out</span><br><span class="line"></span><br><span class="line">project.hook_symbol(<span class="string">&#x27;rand&#x27;</span>, NotVeryRand(return_values=[<span class="number">413</span>, <span class="number">612</span>, <span class="number">1025</span>, <span class="number">1111</span>]))</span><br></pre></td></tr></table></figure>
+<p>每当程序尝试调用rand()时，都会遵循返回return_values数组中的整数。</p>
+<h3 id="Writing-State-Plugins"><a href="#Writing-State-Plugins" class="headerlink" title="Writing State Plugins"></a>Writing State Plugins</h3><p>如果想在一个状态上存储一些数据并让这些信息从后继者传播到后继者，最简单的方法是使用 state.globals。然而，对于合并状态不起作用，并且不是面向对象的。</p>
+<p>这些问题的解决方案是编写一个state plugin——状态的一个附录，它保存数据并实现一个处理状态生命周期的接口。</p>
+<h4 id="My-First-Plugin"><a href="#My-First-Plugin" class="headerlink" title="My First Plugin"></a>My First Plugin</h4><p>所有状态插件都作为angr.SimStatePlugin的子类实现。</p>
+<p>需要实现的最重要的方法是复制：它应该使用memo静态方法进行注释，并采用一个名为“memo”的字典——并返回插件的副本。除此之外要确保调用超类初始化程序。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyFirstPlugin</span>(angr.SimStatePlugin):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, foo</span>):</span><br><span class="line">        <span class="built_in">super</span>(MyFirstPlugin, self).__init__()</span><br><span class="line">        self.foo = foo</span><br><span class="line"></span><br><span class="line"><span class="meta">    @angr.SimStatePlugin.memo</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">copy</span>(<span class="params">self, memo</span>):</span><br><span class="line">        <span class="keyword">return</span> MyFirstPlugin(self.foo)</span><br><span class="line"></span><br><span class="line">state = angr.SimState(arch=<span class="string">&#x27;AMD64&#x27;</span>)</span><br><span class="line">state.register_plugin(<span class="string">&#x27;my_plugin&#x27;</span>, MyFirstPlugin(<span class="string">&#x27;bar&#x27;</span>))</span><br><span class="line"><span class="keyword">assert</span> state.my_plugin.foo == <span class="string">&#x27;bar&#x27;</span></span><br><span class="line"></span><br><span class="line">state2 = state.copy()</span><br><span class="line">state.my_plugin.foo = <span class="string">&#x27;baz&#x27;</span></span><br><span class="line">state3 = state.copy()</span><br><span class="line"><span class="keyword">assert</span> state2.my_plugin.foo == <span class="string">&#x27;bar&#x27;</span></span><br><span class="line"><span class="keyword">assert</span> state3.my_plugin.foo == <span class="string">&#x27;baz&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>插件会自动成为状态的属性。state.get_plugin(name)也可用作更具编程性的接口。</p>
+<h4 id="Where’s-the-state"><a href="#Where’s-the-state" class="headerlink" title="Where’s the state"></a>Where’s the state</h4><p>状态不是初始化的一部分，而是通过使用set_state方式在单独的阶段设置到状态。如果需要将状态传播到子组件或提取体系结构信息，则可以覆盖此状态。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">set_state</span>(<span class="params">self, state</span>):</span><br><span class="line">    <span class="built_in">super</span>(SimStatePlugin, self).set_state(state)</span><br><span class="line">    self.symbolic_word = claripy.BVS(<span class="string">&#x27;my_variable&#x27;</span>, self.state.arch.bits)</span><br></pre></td></tr></table></figure>
+<p>self.state是super set_state所设置的。</p>
+<p>因为无法保证在插件上设置状态的顺序，所以如果需要与其他插件交互进行初始化，就需要重写init_state方法。</p>
+<p>因为无法保证调用什么，因此规则是确保在set_state期间足够好地设置自己，以便在其他人试图与您交互时不会发生类型错误。如下为使用init_state去映射状态中的内存区域的例子，使用实例变量(假定复制为copy()的一部分)可以确保这只在插件第一次添加到状态时发生。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">init_state</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="keyword">if</span> self.region <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">       self.region = self.state.memory.map_region(SOMEWHERE, <span class="number">0x1000</span>, <span class="number">7</span>)</span><br></pre></td></tr></table></figure>
+<p>self.state不是状态本身，而是状态的弱代理。可以将此对象用作正常状态，但试图持久地存储它将不起作用。</p>
+<h4 id="Merging"><a href="#Merging" class="headerlink" title="Merging"></a>Merging</h4><p>状态生命周期中复制的另一个要素是合并，作为输入得到了要合并的插件和“合并条件”列表——符号布尔值是“保护条件”描述了来自每个状态的值何时应该实际应用。</p>
+<p>一些合并条件的重要属性：</p>
+<ul>
+<li>它们是相互排斥的，并且贯穿整个区域——恰好可以一次满足一个，并且会有额外的约束来确保至少必须满足一个。</li>
+<li>len(merge_conditions) == len(others) + 1，因为self也需要计数。</li>
+<li>zip(merge_condition, [self] + others)将准确地通过插件匹配合并条件。</li>
+</ul>
+<p>在合并函数期间，需要根据合并条件把self改变为它和所有其它对象的合并版本。这包括使用claripy提供的if-then-else结构，如下为通过合并一个被称为mycvar的位向量实例常量来构造合并结构，生成一个if-then-else表达式的二进制树来搜素正确的条件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> other_plugin, condition <span class="keyword">in</span> <span class="built_in">zip</span>(others, merge_conditions[<span class="number">1</span>:]): <span class="comment"># 去掉自己的条件</span></span><br><span class="line">    self.myvar = claripy.If(condition, other_plugin.myvar, self.myvar)</span><br></pre></td></tr></table></figure>
+<p>这是一种非常常见的结构，因此提供了一个实用程序来自动执行它：clariy .ite_cases。下面的代码片段与前面的代码片段相同：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.myvar = claripy.ite_cases(<span class="built_in">zip</span>(merge_conditions[<span class="number">1</span>:], [o.myvar <span class="keyword">for</span> o <span class="keyword">in</span> others]), self.myvar)</span><br></pre></td></tr></table></figure>
+<p>与其他顶级claripy函数一样，ite_case和If也可以从state.solver中获得，这些版本将执行SimActionObject展开(如果适用)。</p>
+<h5 id="Common-Ancestor"><a href="#Common-Ancestor" class="headerlink" title="Common Ancestor"></a>Common Ancestor</h5><p>merge接口的原型是def merge(self, others, merge_conditions, common_ancestor=None)。</p>
+<p>共同祖先是来自正在合并状态的最新共同祖先的插件实例。它可能不可用于所有合并，在这种情况下，它将是 None。</p>
+<h4 id="Widening"><a href="#Widening" class="headerlink" title="Widening"></a>Widening</h4><p>还有另一种合并叫做扩展，它将几个状态合并成一个更一般的状态。它用于静态分析。</p>
+<h4 id="Serialization"><a href="#Serialization" class="headerlink" title="Serialization"></a>Serialization</h4><p>为了支持序列化包含插件的状态，应该实现__getstate__和__setstate__魔术方法对：</p>
+<ul>
+<li>序列化结果不包含状态</li>
+<li>反序列化之后，set_state()将被再次调用</li>
+</ul>
+<p>这意味着插件从状态中“分离”并在隔离的环境中序列化，然后在反序列化时重新附加到状态。</p>
+<h4 id="Plugins-all-the-way-down"><a href="#Plugins-all-the-way-down" class="headerlink" title="Plugins all the way down"></a>Plugins all the way down</h4><p>即使不依附状态的部分也可以作为状态插件，比如SimFile是一个状态插件存储在文件系统插件中，从来不和SimState.register_plugin。需要记住一些规则来让插件更安全：</p>
+<ul>
+<li>用@SimStatePlugin.memo来注释复制函数</li>
+<li>为了防止在复制多个引用到同一个插件时出现分歧，确保将memo(copy的参数)传递给任何子插件的.copy。这保护了一致性。</li>
+<li>为了防止在合并对同一个插件的多个引用时重复合并，每个实例应该有一个“所有者”的概念，并且只有所有者应该运行合并例程。</li>
+<li>当传输参数给子插件merge()时，确保将others和common_ancestor解开为合适的类型，比如：PluginA包含PluginB，前者应该：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">self, others, merge_conditions, common_ancestor=<span class="literal">None</span></span>):</span><br><span class="line">    self.plugin_b.merge([o.plugin_b <span class="keyword">for</span> o <span class="keyword">in</span> others], merge_conditions,common_ancestor=<span class="literal">None</span> <span class="keyword">if</span> common_ancestor <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">else</span> common_ancestor.plugin_b)</span><br></pre></td></tr></table></figure>
+<h4 id="Setting-Defaults"><a href="#Setting-Defaults" class="headerlink" title="Setting Defaults"></a>Setting Defaults</h4><p>为了使插件在请求时自动在状态上可用而不必先向状态注册，可以将其注册为默认值。下面的代码示例将使每当访问state.my_plugin时，MyPlugin的新实例将被实例化并向状态注册。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MyPlugin.register_default(<span class="string">&#x27;my_plugin&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="Extending-the-Environment-Model"><a href="#Extending-the-Environment-Model" class="headerlink" title="Extending the Environment Model"></a>Extending the Environment Model</h3><p>在使用angr分析项目时会遇到围绕项目环境或者API的不完整性的问题，这通常采取系统调用或动态库调用的形式，或者在极少数情况下加载器构件。Angr提供了一个方便的界面。</p>
+<h4 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h4><p>如果希望开发angr的安装，即使用angr-dev存储库中的脚本进行设置。只需在angr存储库的某些文件夹中实现新的API模型，就可以很容易地添加新的API模型。</p>
+<p>但是如果要在树外进行开发想要针对生产版本的 angr或者想要制作已实现的API函数的自定义版本，则可以使用多种方法以编程方式合并扩展。这两种技术树内和树外都将在每一步中记录下来。</p>
+<h4 id="Dynamic-library-functions-import-dependencies"><a href="#Dynamic-library-functions-import-dependencies" class="headerlink" title="Dynamic library functions - import dependencies"></a>Dynamic library functions - import dependencies</h4><p>一个最简单的情况，首先需要写一个表示函数的SimProcedure，然后需要让angr知道它。</p>
+<h5 id="Case-1-in-tree-development-SimLibraries-and-catalogues"><a href="#Case-1-in-tree-development-SimLibraries-and-catalogues" class="headerlink" title="Case 1, in-tree development: SimLibraries and catalogues"></a>Case 1, in-tree development: SimLibraries and catalogues</h5><p>在仓库里angr有一个魔术文件夹angr/procedures，它包含了所有与angr捆绑在一起的SimProcedure实现，以及关于哪些库实现了哪些函数的信息。</p>
+<p>procedures目录中的每个文件夹都对应于某种标准，或者对应于指定API接口部分及其语义的主体。每一个文件夹被称为一个procedures的目录。比如：libc包含了C标准库定义的函数，posix包含了posix标准定义的函数。可以自动刮除procedures目录中的这些文件夹，并将它们组织到angr.SIM<em>PROCEDURES字典。比如：angr/procedures/libc/printf.py包含了class printf和class \</em>_printf_chk，所以angr.SIM<em>PROCEDURES[‘libc’][‘printf]和angr.SIM_PROCEDURES[‘libc’][‘\</em>_printf_chk’]。</p>
+<p>这种分类的目的是方便地在不同的库之间共享过程。比如：libc.so.6包含了所有的C标准库函数，但是msvcrt.dll也一样。这些关系由称为SimLibraries的对象表示，SimLibraries表示实际的共享库文件、其函数及其元数据。</p>
+<p>SimLibraries定义在过程目录中的一个特殊文件夹中procedures/definitions。这里的文件应该包含SimLibrary的一个实例，而不是一个子类。抓取simprocedure也会抓取simlibrary，并将它们放到angr中。SIM_LIBRARIES为它们的每个公共名称设置了关键字。例如，angr/procedures/definitions/linux_loader.py包含lib = SimLibrary();lib.set_library_names(‘ld.so’,ld-linu.so’,ld.so.2 ‘, ‘ ld-linux.so.2’，’ld-linux-x86_64.so.2’)。</p>
+<p>加载时，在SIM_LIBRARIES中查找所有动态库依赖项，并将它们的过程(或存根!)连接到项目的地址空间中，以总结它可以总结的任何函数。</p>
+<p>可以编写自己的SimProcedure和SimLibrary定义，把它们放到目录结构中就会自动被应用。如果要向现有库添加一个过程，只需将其放入适当的目录中，它就会被使用该目录的所有库接收，因为大多数库都是通过批量添加整个目录来构造函数实现列表的。</p>
+<h5 id="Case-2-out-of-tree-development-tight-interation"><a href="#Case-2-out-of-tree-development-tight-interation" class="headerlink" title="Case 2, out-of-tree development, tight interation"></a>Case 2, out-of-tree development, tight interation</h5><p>如果想在angr仓库之外实现procedures，可以通过手动将procedures添加到适当的SimLibrary来有效地完成此任务。就叫angr.SIM_LIBRARIES[libname].add(name, proc_cls)来进行注册。</p>
+<p>注意，只有在项目加载angry . project之前这样做才会起作用。还要注意将procedure添加到angr.SIM_PROCEDURES中，即直接将其添加到目录中将不起作用，因为这些目录仅用于在导入时构造simlibrary，并且是按值使用而不是按引用使用。</p>
+<h5 id="Case-3-out-of-tree-development-loose-integration"><a href="#Case-3-out-of-tree-development-loose-integration" class="headerlink" title="Case 3, out-of-tree development, loose integration"></a>Case 3, out-of-tree development, loose integration</h5><p>最后，如果完全不想使用SimLibraries，可以在项目级别上使用hook_symbol做一些事情。</p>
+<h4 id="Syscalls"><a href="#Syscalls" class="headerlink" title="Syscalls"></a>Syscalls</h4><p>与动态库方法不同，系统调用过程不会通过hook合并到项目中。相反每当遇到系统调用指令时，基本块应该以Ijk_Sys的跳类型结束。这将导致下一步由与项目关联的simo处理，它将从状态中提取系统调用号，并使用该编号查询专门的SimLibrary。</p>
+<p>SimLibrary的子类SimSyscallLibrary收集组成操作系统系统调用接口的函数。SimSyscallLibrary使用与SimLibrary相同的系统来管理实现和元数据，但在此基础上添加了一个系统，用于管理多个ABIs(应用程序二进制接口，类似于API，但级别较低)的系统调用号。SimSyscallLibrary实现的最佳示例是linux系统调用。它将过程保存在一个名为linux_kernel的普通SimProcedure目录中并将它们添加到库中，然后添加几个系统调用号映射，包括针对mpps-o32、mpps-n32和mpps-n64的单独映射。</p>
+<p>为了首先支持系统调用，项目的SimOS必须从SimUserland继承，SimUserland本身就是一个SimOS子类。这要求该类使用super()调用SimUserland的构造函数，该调用包含syscall_library关键字参数，指定特定的SimSyscallLibrary，其中包含用于操作系统的适当过程和映射。此外，该类的configure_project必须执行一个super()调用，其中包含abi_list关键字参数，该参数包含对当前体系结构有效的ABIs列表。如果系统调用的ABI不能仅通过系统调用的编号来确定，例如，amd64 linux程序可以使用int 0x80或系统调用来调用系统调用，并且这两个ABI使用重叠的编号，那么simo可以覆盖syscall_abi()，它接受一个SimState并返回当前系统调用ABI的名称。这是通过检查自libVE以来最近的跳跃类型来确定的。</p>
+<p>现在对系统调用的调用约定需要angr.SYSCALL_CC是映射{arch_name: {os_name: cc_cls}}的映射，其中os_name是project.simos.name的值，每个调用约定类都必须包含一个额外的方法，称为syscall_number，该方法接受一个状态并返回当前的系统调用号。</p>
+<p>作为一个旁注，每个系统调用在CLE中称为“内核对象”的特殊对象中被赋予一个惟一的地址。在执行系统调用时，将特定系统调用的地址设置到状态的指令指针中，因此它将显示在日志中。这些地址不是hook的只是用于在分析过程中识别系统调用，只提供一个地址跟踪。判断一个地址是否对应于一个系统调用的测试方法是project.simos.is_syscall_addr(addr)，可以使用project.simos.syscall_from_addr(addr)检索与该地址对应的系统调用。</p>
+<h5 id="Case-1-in-tree-development"><a href="#Case-1-in-tree-development" class="headerlink" title="Case 1, in-tree development"></a>Case 1, in-tree development</h5><p>SimSyscallLibraries和SimLibraries一样存储在angr/procedures/definitions，这些库不需要指定任何公共名称，除非在SIM_LIBRARIES中为了便于访问。</p>
+<p>将procedures添加到动态库函数的现有目录中的相同情况也适用于系统调用——实现linux系统调用就像编写SimProcedure并将混淆放入angr/procedures/linux_kernel一样简单。只要类名与SimLibrary的编号到名称映射中的名称之一匹配（所有linux系统调用编号都包含在最新版本的angr中）就会使用它。</p>
+<p>要完全添加新的操作系统还需要实现SimOS作为SimUserland的子类。要将其集成到树中，应该将其添加到simos目录中，但这不是一个像procedures那样的魔术目录。相反应该向angr/simos/__init__.py添加一行，register_simos()时使用project.loader.main_object.os和SimOS类中显示的操作系统名称调用。</p>
+<h5 id="Case-2-out-of-tree-development-tight-integration"><a href="#Case-2-out-of-tree-development-tight-integration" class="headerlink" title="Case 2, out-of-tree development, tight integration"></a>Case 2, out-of-tree development, tight integration</h5><p>通过调整anger.sim_libraries中的条目，可以像向普通SimLibrary添加函数一样向SimSyscallLibrary添加系统调用。如果是linux需要angry.sim_libraries[‘linux’].add(name, proc_cls)。</p>
+<p>可以从out- tree用angr注册一个SimOS同样的register_simos方法就像angr.simos.register_simos(name, simos_cls)。</p>
+<h5 id="Case-3-out-of-tree-development-loose-integration-1"><a href="#Case-3-out-of-tree-development-loose-integration-1" class="headerlink" title="Case 3,  out-of-tree development, loose integration"></a>Case 3,  out-of-tree development, loose integration</h5><p>SimOS使用的SimSyscallLibrary是在安装过程中从原始库复制的，因此可以安全地进行更改。可以直接通过project.simos.syscall_library来操作单个项目的系统调用。</p>
+<p>可以通过SimOS关键字参数直接向Project构造函数提供SimOS类(而不是实例)，因此如果愿意，可以显式地为项目指定SimOS。</p>
+<h4 id="SimData"><a href="#SimData" class="headerlink" title="SimData"></a>SimData</h4><p>对于解决数据对象存在依赖项的问题，当给定的库实际加载到内存中时重定位可以正常解决。然而当库未加载时(例如，auto_load_libs=False，或者可能只是缺少某些依赖项)，如果来宾程序解引用了指向此类符号的指针，模拟就会偏离轨道。可以通过实现和注册一个SimData类来解决它，这个类类似于SimProcedure，但针对的是数据。SimData可以有效地指定一些必须用于提供未解析导入符号的数据。它有许多机制使这更有用，包括指定重定位和子依赖关系的能力。</p>
+<h3 id="Writing-Analyses"><a href="#Writing-Analyses" class="headerlink" title="Writing Analyses"></a>Writing Analyses</h3><p>一个analysis可以由angr.Analysis类的子类创建：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> angr</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MockAnalysis</span>(angr.Analysis):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, option</span>):</span><br><span class="line">        self.option = option</span><br><span class="line"></span><br><span class="line">angr.AnalysesHub.register_default(<span class="string">&#x27;MockAnalysis&#x27;</span>, MockAnalysis) <span class="comment"># 用angr的全局分析列表注册类</span></span><br></pre></td></tr></table></figure>
+<p>运行新分析：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">proj = angr.Project(<span class="string">&quot;/bin/true&quot;</span>)</span><br><span class="line">mock = proj.analyses.MockAnalysis(<span class="string">&#x27;this is my option&#x27;</span>)</span><br><span class="line"><span class="keyword">assert</span> mock.option == <span class="string">&#x27;this is my option&#x27;</span></span><br></pre></td></tr></table></figure>
+<h4 id="Working-with-projects"><a href="#Working-with-projects" class="headerlink" title="Working with  projects"></a>Working with  projects</h4><p>分析将自动拥有正在运行的self.project属性。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ProjectSummary</span>(angr.Analysis):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self.result = <span class="string">&#x27;This project is a %s binary with an entry point at %#x.&#x27;</span> % (self.project.arch.name, self.project.entry)</span><br><span class="line"></span><br><span class="line">angr.AnalysesHub.register_default(<span class="string">&#x27;ProjectSummary&#x27;</span>, ProjectSummary)</span><br><span class="line">proj = angr.Project(<span class="string">&quot;/bin/true&quot;</span>)</span><br><span class="line"></span><br><span class="line">summary = proj.analyses.ProjectSummary()</span><br><span class="line"><span class="built_in">print</span>(summary.result)</span><br></pre></td></tr></table></figure>
+<h4 id="Analysis-Resilience"><a href="#Analysis-Resilience" class="headerlink" title="Analysis Resilience"></a>Analysis Resilience</h4><p>当对程序中的所有函数运行分析时，即使有些函数失败了，仍然想知道没有失败的函数的结果。为了促进这一点，Analysis基类在self._resilience下提供了一个弹性上下文管理器。例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ComplexFunctionAnalysis</span>(angr.Analysis):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        self._cfg = self.project.analyses.CFG()</span><br><span class="line">        self.results = &#123; &#125;</span><br><span class="line">        <span class="keyword">for</span> addr, func <span class="keyword">in</span> self._cfg.function_manager.functions.items():</span><br><span class="line">            <span class="keyword">with</span> self._resilience():</span><br><span class="line">                <span class="keyword">if</span> addr % <span class="number">2</span> == <span class="number">0</span>:</span><br><span class="line">                    <span class="keyword">raise</span> ValueError(<span class="string">&quot;can&#x27;t handle functions at even addresses&quot;</span>)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    self.results[addr] = <span class="string">&quot;GOOD&quot;</span></span><br></pre></td></tr></table></figure>
+<p>上下文管理器捕获抛出的任何异常并将它们(作为异常类型、消息和回溯的元组)记录到self.errors。在保存和加载分析时，也会保存和加载这些文件(尽管会丢弃回溯，因为它是不可pickle的)。</p>
+<p>可以通过self._resilience()的两个可选关键字参数来调整resilience效果。</p>
+<p>第一个是name，它影响错误被记录的位置，默认地址在self.errors，但是如果提供了name，则错误将被记录到self.named_errors，这是一个将name映射到在该名称下捕获的所有错误列表的字典。</p>
+<p>第二个参数是exception，它应该是_resilience应该捕获的异常的类型。默认为Exception，它处理(并记录)几乎所有可能出错的事情。</p>
+<p>使用_resilience的一些优点：</p>
+<ol>
+<li>异常被记录下来，并且随后很容易访问。有助于编写测试用例。</li>
+<li>在创建分析时，用户可以传递fail_fast=True，这对于手动测试非常好。</li>
+<li>这比到处都用try/except要漂亮得多。</li>
+</ol>
+<h3 id="Scripting-angr-management"><a href="#Scripting-angr-management" class="headerlink" title="Scripting angr management"></a>Scripting angr management</h3><h4 id="The-console-and-the-basic-objects"><a href="#The-console-and-the-basic-objects" class="headerlink" title="The console, and the basic objects"></a>The console, and the basic objects</h4><p>angr管理通过一个为输入准备的IPython控制台打开，这个控制台的命名空间中有几个对象，这些对象对于操纵angr管理及其数据非常重要：</p>
+<ul>
+<li>main_window：这是应用程序的QMainWindow实例。它包含与顶级按钮对应的基本函数，比如加载二进制文件。</li>
+<li>workspace：这是一个用于协调UI元素和管理选项卡环境的轻对象。可以使用它来访问任何与分析相关的GUI元素，例如拆卸视图。</li>
+<li>instance：这是angr管理的数据模型。它包含同步共享数据源上的组件的机制，以及创建长时间运行作业的逻辑。</li>
+</ul>
+<p>Workspace也可以作为main_window上的一个属性使用，instance也可以作为Workspace上的一个属性使用。如果正在一个没有这些对象可用的命名空间中编程，那么可以导入angrmanagement .logic. globalinfo对象，该对象包含对main_window的引用。</p>
+<h4 id="The-ObjectContainer"><a href="#The-ObjectContainer" class="headerlink" title="The ObjectContainer"></a>The ObjectContainer</h4><p>angr管理使用一个叫做ObjectContainer的类来实现发布-订阅模型并同步变化的对象引用。用instance.project作为一个例子。这是一个包含当前项目的ObjectContainer。可以像通常使用project一样使用它——可以访问project.factory.kb,等等。但是它还有两个非常重要的特性有助于构建UI。</p>
+<p>首先是“发布-订阅”模式。可以通过调用instance.project.am_subscribe(callback)来订阅对该对象的更改。然后，可以通过调用instance.project.am_event()来通知侦听器更改。注意，事件永远不会自动触发——必须调用am_event才能触发回调。该模型的一个有用特性是可以向am_event提供任意关键字参数，它们将被传递给每个回调。这意味着应该总是让回调函数接受**kwargs，以便考虑未知的参数。这个特性在防止反馈循环方面特别有用——如果发现自己处于需要从回调广播事件的情况下，可以添加一个参数，可以将其用作标志，从而不再递归。</p>
+<p>然后对象引用可变性。假设有一个显示项目信息的小部件。遵循最少访问原则应该只提供完成工作所需的信息—在本例中，只提供项目对象。如果提供了基本项目对象，那么在加载新项目时将会出现问题。值得注意的是，将有一个悬空引用保存到原始项目，防止它被垃圾收集，小部件将不会更新，继续显示旧项目的信息。现在，如果提供了项目的ObjectContainer，则可以创建一个新项目并将其插入到容器中，并且小部件将立即可以使用该引用。如果想加载一个新项目，要做的是给instance.project.am_obj赋值然后发送一个事件。结合事件发布模型，这提供了一种高效的方法来构建遵循最少访问原则的响应性UI。</p>
+<p>不能像使用普通对象那样使用对象容器的一个重要原因是，is None显然不起作用。要解决这个问题，可以使用instance.project.am_none -当没有加载任何项目时，该值将为True。</p>
+<p>ObjectContainer的一个有趣特性是它们可以嵌套。如果一个容器包含一个容器，而容器又包含一个对象，那么发送到内部容器的任何事件也将发送到外部容器的订阅者。这允许一些模式，例如simstate列表实际上包含包含状态的objectcontainer列表，而“当前状态”容器实际上包含这些容器之一。这样做的结果是UI元素可以订阅当前状态。</p>
+<p>可以在instance__init__method中找到的标准ObjectContainer的完整列表。还有更多的容器用于同步非全局元素——例如，反汇编视图的当前状态通过其InfoDock对象进行同步。给定一个反汇编视图实例，可以通过view.infodock.selected_insns订阅它当前选择的指令。</p>
+<h4 id="Manipulating-UI-elements"><a href="#Manipulating-UI-elements" class="headerlink" title="Manipulating UI elements"></a>Manipulating UI elements</h4><p>workspace包含操作UI元素的方法。值得注意的是，可以用workspace.view_manager参考操作所有打开的选项卡。可以将任何类型的对象传递给workspace.viz()，它将尝试在当前窗口中可视化该对象。</p>
+<h4 id="Writing-plugins"><a href="#Writing-plugins" class="headerlink" title="Writing plugins"></a>Writing plugins</h4><p>angr管理有一个非常灵活的插件框架，一个插件是包含angrmanagement.plugins.BasePlugin子类的Python文件。插件文件将从angr management的plugins模块自动加载，也可以从~/.local/share/anger-management/plugins加载。这些路径可以通过程序配置进行配置。</p>
+<p>要了解在构建插件时可以使用的工具，最好的方法是阅读插件基类源代码。任何方法或属性都可以从基类中重写，并将在相关事件中自动调用。</p>
+<h4 id="Writing-tests"><a href="#Writing-tests" class="headerlink" title="Writing tests"></a>Writing tests</h4><p>通常可以通过创建组件并通过QTest驱动对其的输入来测试UI组件。可以通过将show=False传递给它的构造函数来创建一个无头MainWindow实例——这也将能够访问一个工作区和一个实例。</p>
+<h2 id="API"><a href="#API" class="headerlink" title="API"></a>API</h2><h3 id="angr-Analysis-and-Coordination"><a href="#angr-Analysis-and-Coordination" class="headerlink" title="angr - Analysis and Coordination"></a>angr - Analysis and Coordination</h3><h4 id="Project"><a href="#Project" class="headerlink" title="Project"></a>Project</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">angr</span>.project.Project(thing, default_analysis_mode=<span class="literal">None</span>, ignore_functions=<span class="literal">None</span>, use_sim_procedures=<span class="literal">True</span>, exclude_sim_procedures_func=<span class="literal">None</span>, exclude_sim_procedures_list=(), arch=<span class="literal">None</span>, simos=<span class="literal">None</span>, engine=<span class="literal">None</span>, load_options: <span class="type">Optional</span>[<span class="type">Dict</span>[<span class="built_in">str</span>, <span class="type">Any</span>]] = <span class="literal">None</span>, translation_cache=<span class="literal">True</span>, support_selfmodifying_code=<span class="literal">False</span>, store_function=<span class="literal">None</span>, load_function=<span class="literal">None</span>, analyses_preset=<span class="literal">None</span>, concrete_target=<span class="literal">None</span>, **kwargs)</span><br></pre></td></tr></table></figure>
+<p>angr模块的主要类，旨在包含一组二进制文件及其之间的关系，并对它们进行分析。</p>
+<p>参数：</p>
+<ul>
+<li><strong>thing</strong> - 要分析的主要可执行对象或CLE Loader对象的路径</li>
+</ul>
+<p>可选参数：</p>
+<ul>
+<li><strong>default_analysis_mode</strong> – 默认使用的分析模式，默认为“符号”。</li>
+<li><strong>ignore_functions</strong> – 从共享库导入时，不应在分析中单步执行的函数名称列表。</li>
+<li><strong>use_sim_procedures</strong> – 是否将已解决的依赖项替换 simprocedures 可用于所述 simprocedures。</li>
+<li><strong>exclude_sim_procedures_func</strong> – 当一个函数传递一个函数名时，返回是否用一个simprocedure包装它。</li>
+<li><strong>exclude_sim_procedures_list</strong> – 不使用simprocedures包装的函数列表。</li>
+<li><strong>arch</strong> – 目标架构（否则自动检测）。</li>
+<li><strong>simos</strong> – 用于此项目的SimOS类。</li>
+<li><strong>engine</strong> – 用于此项目的SimEngine类。</li>
+<li><strong>translation_cache</strong> (<em>bool</em>) – 如果是True, 则缓存已翻译的基本块，而不是重新翻译它们。</li>
+<li><strong>support_selfmodifying_code</strong> (<em>bool</em>) –我们是否积极支持自修改代码。启用后，仿真将尝试从当前状态而不是原始内存中读取代码，而不管当前的内存保护如何。</li>
+<li><strong>store_function</strong> – 定义如何存储项目的函数，默认为pickling。</li>
+<li><strong>load_function</strong> – 定义如何加载项目的函数，默认为 unpickling。</li>
+<li><strong>analyses_preset</strong> (<em>angr.misc.PluginPreset</em>) – 分析提供程序的插件预设。</li>
+</ul>
+<p>传递的任何其他关键字参数都将传递给 cle.Loader。</p>
+<p>变量：</p>
+<ul>
+<li><strong>analyses</strong> – 可用的分析</li>
+<li><strong>entry</strong> – 程序的入口点</li>
+<li><strong>factory</strong> – 提供对路径组和符号执行结果等重要分析元素的访问</li>
+<li><strong>filename</strong> – 可执行文件的文件名</li>
+<li><strong>loader</strong> – 程序的加载器</li>
+<li><strong>storage</strong> – 应该与项目一起加载/存储的东西的字典</li>
+</ul>
+<blockquote>
+<p><strong>arch</strong>：Arch</p>
+<p> <strong>analyses</strong>：AnalysesHub</p>
+<p><strong>hook(addr, hook=None, length=0, kwargs=None, replace=False)</strong></p>
+</blockquote>
+<p>将一段代码与自定义函数挂钩。这在内部用于提供库函数的符号摘要，并可用于检测执行或修改控制流。</p>
+<p>参数：</p>
+<ul>
+<li><strong>addr</strong> – 要hook的地址</li>
+<li><strong>hook</strong> – angr.project.Hook 描述在给定地址运行的过程。也可以直接传入 SimProcedure 类或函数，它将包装在 Hook 对象中。</li>
+<li><strong>length</strong> – 如果为hook提供函数，则这是默认情况下通过执行hook将跳过的字节数。</li>
+<li><strong>kwargs</strong> – 如果为hook提供 SimProcedure，这些是最终将传递给过程的 run 方法的关键字参数。</li>
+<li><strong>replace</strong> – 控制发现地址已被挂钩时的行为。如果为真，默默更换挂钩。如果为 false（默认），警告并且不要替换钩子。如果没有，警告并更换挂钩。</li>
+</ul>
+<blockquote>
+<p><strong>is_hooked(addr)-&gt;bool</strong></p>
+<p><strong>hooked_by(addr)-&gt;Optional[SimProcedure]</strong></p>
+</blockquote>
+<p>返回addr的当前hook</p>
+<blockquote>
+<p><strong>unhook(addr)</strong></p>
+<p><strong>hook_symbol(symbol_name, simproc, kwargs=None, replace=None)</strong></p>
+</blockquote>
+<p>解决二进制文件中的依赖关系。查找给定符号的地址，然后hook该地址。如果符号在加载的库中不可用，则此地址可能由 CLE externs 对象提供。</p>
+<p>参数：</p>
+<ul>
+<li><strong>symbol_name</strong> – 要解决的依赖项的名称</li>
+<li><strong>simproc</strong> – 与hook挂钩的SimProcedure实例或函数</li>
+<li><strong>kwargs</strong> – 如果为hook提供 SimProcedure，这些是最终将传递给过程的 run 方法的关键字参数。</li>
+<li><strong>replace</strong> – 控制发现地址已hook时的行为。如果为真，默默更换hook。如果为假，警告并且不要更hook。如果没有（默认），警告并更换hook。</li>
+</ul>
+<p>返回：新符号的地址</p>
+<blockquote>
+<p><strong>is_symbol_hooked(symbol_name)</strong></p>
+<p><strong>unhook_symbol(symbol_name)</strong></p>
+<p><strong>rehook_symbol(new_address, symbol_name, stubs_on_sync)</strong></p>
+<p><strong>execute(<em>args, \</em>*kwargs)</strong></p>
+</blockquote>
+<p>该函数是 triton 和 manticore 支持的简单风格的符号执行助手。它设计为在设置挂钩后运行（请参阅 Project.hook），其中可以检查符号状态。</p>
+<p>该函数可以以三种不同的方式运行：</p>
+<ul>
+<li>当不带参数运行时，此函数从入口点开始符号执行。</li>
+<li>它也可以使用“state”参数来运行，该参数指定一个 SimState 以开始符号执行。</li>
+<li>它可以接受任意关键字参数，这些参数都传递给 project.factory.full_init_state。</li>
+</ul>
+<p>如果符号执行完成，此函数将返回生成的模拟管理器。</p>
+<blockquote>
+<p><strong>terminate_execution()</strong></p>
+</blockquote>
+<p>终止使用 Project.execute() 启动的符号执行。</p>
+<h3 id="ailment-angr-Intermediate-Language"><a href="#ailment-angr-Intermediate-Language" class="headerlink" title="ailment - angr Intermediate Language"></a>ailment - angr Intermediate Language</h3><h3 id="claripy-Solver-Engine"><a href="#claripy-Solver-Engine" class="headerlink" title="claripy - Solver Engine"></a>claripy - Solver Engine</h3><h3 id="cle-Binary-Loader"><a href="#cle-Binary-Loader" class="headerlink" title="cle - Binary Loader"></a>cle - Binary Loader</h3><p>CLE是一个可扩展的二进制加载器，它的主要目标是获取一个可执行程序和它所依赖的任何库，并生成一个地址空间，该程序被加载并准备好运行。主要接口是Loader类。</p>
+<h5 id="Loading-Interface"><a href="#Loading-Interface" class="headerlink" title="Loading Interface"></a>Loading Interface</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">cle</span>.loader.Loader(main_binary, auto_load_libs=<span class="literal">True</span>, concrete_target=<span class="literal">None</span>, force_load_libs=(), skip_libs=(), main_opts=<span class="literal">None</span>, lib_opts=<span class="literal">None</span>, ld_path=(), use_system_libs=<span class="literal">True</span>, ignore_import_version_numbers=<span class="literal">True</span>, case_insensitive=<span class="literal">False</span>, rebase_granularity=<span class="number">1048576</span>, except_missing_libs=<span class="literal">False</span>, aslr=<span class="literal">False</span>, perform_relocations=<span class="literal">True</span>, load_debug_info=<span class="literal">False</span>, page_size=<span class="number">1</span>, preload_libs=(), arch=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+<p>加载器加载所有对象并导出进程内存的抽象。</p>
+<p>参数：</p>
+<ul>
+<li><strong>main_binary</strong> - 正在加载的主二进制文件的路径，或其中包含二进制文件的类似文件的对象。</li>
+</ul>
+<p>可选参数：</p>
+<ul>
+<li><strong>auto_load_libs</strong> – 是否自动加载加载对象所依赖的共享库。</li>
+<li><strong>load_debug_info</strong> – 是否自动解析 DWARF 数据并搜索调试符号文件。</li>
+<li><strong>concrete_target</strong> – 是否为流程的具体执行实例化具体目标。如果是，将需要实例化一个包装用户提供的 ConcreteTarget 的 SimConcreteEngine。</li>
+<li><strong>force_load_libs</strong> – 要加载的库列表，无论加载的对象是否需要它们。</li>
+<li><strong>skip_libs</strong> – 永远不会加载的库列表，即使加载的对象需要它们。</li>
+<li><strong>main_opts</strong> – 用于加载主二进制文件的选项字典。</li>
+<li><strong>lib_opts</strong> – 将库名称映射到加载选项时要使用的选项字典的字典。</li>
+<li><strong>ld_path</strong> – 可以在其中搜索共享库的路径列表。</li>
+<li><strong>use_system_libs</strong> – 是否在系统加载路径中搜索请求的库。默认真。</li>
+<li><strong>ignore_import_version_numbers</strong> – 文件名中具有不同版本号的库是否将被视为等效，例如 libc.so.6 和 libc.so.0</li>
+<li><strong>case_insensitive</strong> – 如果设置为 True，则文件系统加载将不区分大小写，而不管底层文件系统是否区分大小写。</li>
+<li><strong>rebase_granularity</strong> – 用于重新定位共享对象的对齐方式。</li>
+<li><strong>except_missing_libs</strong> – 找不到共享库时抛出异常。</li>
+<li><strong>aslr</strong> – 在符号地址空间中加载库。不要使用此选项。</li>
+<li><strong>page_size</strong> – 数据映射到内存的粒度。如果在数据始终以页面粒度方式进行内存映射的环境中工作，请设置为 0x1000。</li>
+<li><strong>preload_libs</strong> – 类似于 force_load_libs 但将提供符号解析，优先于任何依赖项。</li>
+</ul>
+<p>变量：</p>
+<ul>
+<li><strong>memory</strong> (<a target="_blank" rel="noopener" href="https://api.angr.io/cle.html#cle.memory.Clemory"><em>cle.memory.Clemory</em></a>) – 程序的加载、重新定位和重新定位的内存。</li>
+<li><strong>main_object</strong> – 表示主二进制文件的对象（即可执行文件）。</li>
+<li><strong>shared_objects</strong> – 将加载的库名称映射到表示它们的对象的字典。</li>
+<li><strong>all_objects</strong> – 包含加载的所有不同对象的表示的列表。</li>
+<li><strong>requested_names</strong> – 一组包含被某人标记为依赖项的所有不同共享库的名称。</li>
+<li><strong>initial_load_objects</strong> – 作为初始加载请求的结果加载的所有对象的列表</li>
+</ul>
+<p>当引用选项字典时，它需要具有以下零个或多个键的字典：</p>
+<ul>
+<li>backend : “elf”, “pe”, “mach-o”, “blob” : 使用哪个加载器后端</li>
+<li>arch : 用于二进制文件的 archinfo.Arch 对象</li>
+<li>base_addr : 将对象变基的地址</li>
+<li>entry_point : 用于对象的入口点</li>
+</ul>
+<blockquote>
+<p><strong>memory: Optional[Clemory]</strong></p>
+<p><strong>main_object: Optional[Backend]</strong></p>
+<p><strong>tls: Optional[ThreadManager]</strong></p>
+<p><strong>close()</strong></p>
+<p><strong>property max_addr</strong></p>
+</blockquote>
+<p>作为任何加载对象的一部分加载的最大地址（即整个地址空间）。</p>
+<blockquote>
+<p><strong>property min_addr</strong></p>
+</blockquote>
+<p>作为任何加载对象的一部分加载的最小地址（即整个地址空间）。</p>
+<blockquote>
+<p><strong>property initializers</strong></p>
+</blockquote>
+<p>返回在执行到达入口点之前应该运行的所有初始化程序的列表，按照它们应该运行的顺序。</p>
+<blockquote>
+<p><strong>property finalizers</strong></p>
+</blockquote>
+<p>返回程序退出前应运行的所有终结器的列表。</p>
+<blockquote>
+<p><strong>property linux_loader_object</strong></p>
+</blockquote>
+<p>如果内存中存在 linux 动态加载器，则返回它</p>
+<blockquote>
+<p><strong>property elfcore_object</strong></p>
+</blockquote>
+<p>如果加载了核心文件，则返回实际的核心对象而不是主二进制文件</p>
+<blockquote>
+<p><strong>property extern_object</strong></p>
+</blockquote>
+<p>返回用于为未解析符号和 angr 内部提供地址的外部对象。如果该对象以前不存在，则访问此属性会将其加载到内存中。</p>
+<p>多个外部对象应该如何工作的建议模型：</p>
+<ol>
+<li>extern 对象是一个链表。 loader._extern_object 中的那个是列表的头部</li>
+<li>如果有未解决的依赖关系，每一轮显式加载都会生成一个新的外部对象。这个对象的大小正好可以容纳它的所有导出。</li>
+<li>所有对大小的请求都沿链向下传递，直到它们到达有空间为其提供服务的对象或尚未映射的对象。如果所有对象都已映射且已满，则以固定大小映射新的外部对象。</li>
+</ol>
+<blockquote>
+<p><strong>property kernel_object: KernelObject</strong></p>
+</blockquote>
+<p>返回用于向系统调用提供地址的对象。 如果该对象以前不存在，则访问此属性会将其加载到内存中。</p>
+<blockquote>
+<p><strong>property all_elf_objects</strong></p>
+</blockquote>
+<p>返回从 ELF 文件加载的每个对象的列表。</p>
+<blockquote>
+<p><strong>property all_pe_objects</strong></p>
+</blockquote>
+<p>返回从 ELF 文件加载的每个对象的列表。</p>
+<blockquote>
+<p><strong>property missing_dependencies</strong></p>
+</blockquote>
+<p>返回作为共享对象依赖项请求但无法加载的每个名称的集合。</p>
+<blockquote>
+<p><strong>property auto_load_libs</strong></p>
+<p><strong>describe_addr(addr)→ str</strong></p>
+</blockquote>
+<p>返回所提供地址的内存中内容的文本描述</p>
+<blockquote>
+<p><strong>find_object(spec, extra_objects=())</strong></p>
+</blockquote>
+<p>如果给定的库规范已经加载，则返回其对象，否则返回 None。</p>
+<blockquote>
+<p><strong>find_object_containing(addr, membership_check=True)</strong></p>
+</blockquote>
+<p>返回包含给定地址的对象，如果地址未映射，则返回 None。</p>
+<p>参数：</p>
+<ul>
+<li><strong>addr</strong> (<em>int</em>) – 应包含在对象中的地址。</li>
+<li><strong>membership_check</strong> (<em>bool</em>) – 是否应执行成员资格检查（默认为 True）。</li>
+</ul>
+<p>返回：对象或None</p>
+<blockquote>
+<p><strong>find_segment_containing(addr, skip_pseudo_objects=True)</strong></p>
+</blockquote>
+<p>找到地址所属的section对象。</p>
+<p>参数：</p>
+<ul>
+<li><strong>addr</strong> (<em>int</em>) – 测试地址</li>
+<li><strong>skip_pseudo_objects</strong> (<em>bool</em>) – 跳过 CLE 在加载期间添加的对象。</li>
+</ul>
+<p>返回：地址所属的部分，如果地址不属于任何部分，或者部分信息不可用，则为 None。</p>
+<p>返回类型：cle.Segment</p>
+<blockquote>
+<p><strong>find_section_containing(addr, skip_pseudo_objects=True)</strong></p>
+</blockquote>
+<p>找到地址所属的section对象。</p>
+<p>参数：</p>
+<ul>
+<li><strong>addr</strong> (<em>int</em>) – 测试地址</li>
+<li><strong>skip_pseudo_objects</strong> (<em>bool</em>) – 跳过 CLE 在加载期间添加的对象。</li>
+</ul>
+<p>返回：地址所属的部分，如果地址不属于任何部分，或者部分信息不可用，则为 None。</p>
+<p>返回类型：cle.Segment</p>
+<blockquote>
+<p><strong>find_loadable_containing(addr, skip_pseudo_objects=True)</strong></p>
+</blockquote>
+<p>查找地址所属的节或段对象。仅当相应对象没有段时才使用段。</p>
+<p>参数：</p>
+<ul>
+<li><strong>addr</strong> – 测试地址</li>
+<li><strong>skip_pseudo_objects</strong> – 跳过 CLE 在加载期间添加的对象。</li>
+</ul>
+<p>返回：地址所属的部分或段，如果地址不属于任何部分或段，则为 None。</p>
+<blockquote>
+<p><strong>find_section_next_to(addr, skip_pseudo_objects=True)</strong></p>
+</blockquote>
+<p>在给定地址之后找到下一部分。</p>
+<p>参数：</p>
+<ul>
+<li><strong>addr</strong> (<em>int</em>) – 测试地址</li>
+<li><strong>skip_pseudo_objects</strong> (<em>bool</em>) – 跳过 CLE 在加载期间添加的对象。</li>
+</ul>
+<p>返回：给定地址之后的下一个部分，如果地址后面没有部分，或者部分信息不可用，则为 None。</p>
+<p>返回类型：cle.Section</p>
+<blockquote>
+<p> <strong>find_symbol(thing, fuzzy=False)</strong></p>
+</blockquote>
+<p>搜索具有给定名称或地址的符号。</p>
+<p>参数：</p>
+<ul>
+<li><strong>thing</strong> – 要查找的符号的名称或地址</li>
+<li><strong>fuzzy</strong> – 设置为 True 以返回给定地址之前或处的第一个符号</li>
+</ul>
+<p>返回：如果找到，则为 cle.backends.Symbol 对象，否则为无。</p>
+<blockquote>
+<p><strong>property symbols</strong></p>
+<p><strong>find_all_symbols(name, exclude_imports=True, exclude_externs=False, exclude_forwards=True)</strong></p>
+</blockquote>
+<p>遍历具有给定名称的已加载二进制文件集中存在的所有符号</p>
+<p>参数：</p>
+<ul>
+<li><strong>name</strong> – 搜索的名称</li>
+<li><strong>exclude_imports</strong> – 是否排除导入符号。默认真。</li>
+<li><strong>exclude_externs</strong> – 是否排除外部对象中的符号。默认假。</li>
+<li><strong>exclude_forwards</strong> – 是否排除正向符号。默认真。</li>
+</ul>
+<blockquote>
+<p><strong>find_plt_stub_name(addr)</strong></p>
+</blockquote>
+<p>返回从 addr 开始的 PLT 存根的名称。</p>
+<blockquote>
+<p><strong>find_relevant_relocations(name)</strong></p>
+</blockquote>
+<p>遍历所有引用具有给定名称的符号的重定位</p>
+<blockquote>
+<p><strong>perform_irelative_relocs(resolver_func)</strong></p>
+</blockquote>
+<p>使用此方法可以满足二进制文件中需要执行加载代码的 Irelative 重定位。请注意，这不处理 IFunc 符号，必须单独处理。</p>
+<p>参数：</p>
+<ul>
+<li><strong>resolver_func</strong>  - 一个回调函数，它接受一个地址，在该地址运行代码，并从模拟函数返回返回值。</li>
+</ul>
+<blockquote>
+<p><strong>dynamic_load(spec)</strong></p>
+</blockquote>
+<p>将文件加载到地址空间。请注意，auto_load_libs 和 except_missing_libs 的语义始终适用。</p>
+<p>参数：</p>
+<ul>
+<li><strong>spec</strong> - 要加载的文件的路径。可以是绝对路径、相对路径或要在加载路径中搜索的名称。</li>
+</ul>
+<p>返回：成功加载的所有对象的列表，如果此对象之前已加载，则该列表可能为空。如果 spec 中指定的对象由于任何原因未能加载，包括找不到文件，则返回 None。</p>
+<blockquote>
+<p><strong>get_loader_symbolic_constraints()</strong></p>
+</blockquote>
+<h4 id="pyvex-Binary-Translator"><a href="#pyvex-Binary-Translator" class="headerlink" title="pyvex - Binary Translator"></a>pyvex - Binary Translator</h4><p>PyVEX提供了一个将二进制代码转换为VEX中间表示（IR）的接口</p>
+<h4 id="archinfo-Arch-Information-Repository"><a href="#archinfo-Arch-Information-Repository" class="headerlink" title="archinfo - Arch Information Repository"></a>archinfo - Arch Information Repository</h4><p>archinfo是包含特定于体系结构信息的类的集合</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Phenix</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lemon8888.github.io/2022/08/15/angr学习/">https://lemon8888.github.io/2022/08/15/angr学习/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lemon8888.github.io">Stay hungry, Stay foolish</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/symbolic-execution/">symbolic execution</a><a class="post-meta__tags" href="/tags/binary-analysis/">binary analysis</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2022/08/15/angr-ctf/"><i class="fa fa-chevron-left">  </i><span>angr-ctf</span></a></div><div class="next-post pull-right"><a href="/2022/08/13/Firmalice-Automatic%20Detection%20of%20Authentication%20Bypass%20Vulnerabilities%20in%20Binary%20/"><span>Firmalice - Automatic Detection of Authentication Bypass Vulnerabilities in Binary Firmware</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://s3.ax1x.com/2021/02/03/yKbRKK.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2022 By Phenix</div><div class="framework-info"><span>驱动 - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a target="_blank" rel="noopener" href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  CommonHTML: {
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "HTML-CSS": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  },
+  "SVG": { 
+    linebreaks: { automatic: true, width: "90% container" }
+  }
+});
+</script><script type="text/x-mathjax-config">MathJax.Hub.Queue(function() {
+  var all = MathJax.Hub.getAllJax(), i;
+  for (i=0; i < all.length; i += 1) {
+    all[i].SourceElement().parentNode.className += ' has-jax';
+  }
+});
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>
